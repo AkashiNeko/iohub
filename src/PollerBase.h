@@ -9,7 +9,8 @@
 
 namespace iohub {
 
-using EpollEvent = std::pair<int, int>;
+// pair {fd: int, event: int}
+using FD_Event = std::pair<int, int>;
 
 enum Event {
     IOHUB_IN  = 0x01,
@@ -19,12 +20,15 @@ enum Event {
 
 class PollerBase {
 public:
-    virtual ~PollerBase() = 0;
     virtual bool insert(int fd, int events) = 0;
     virtual bool erase(int fd) = 0;
     virtual bool modify(int fd, int events) = 0;
-    virtual EpollEvent wait(int timeout) = 0;
+
+    virtual FD_Event wait(int timeout) = 0;
+
+    virtual bool is_open() = 0;
     virtual void close() = 0;
+
 }; // class PollerBase
 
 } // namespace iohub

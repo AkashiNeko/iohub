@@ -12,10 +12,6 @@ Epoll::Epoll() : epoll_fd_(epoll_create(1)) {
     assert_throw(epoll_fd_ >= 0, "[epoll] epoll create failed");
 }
 
-void Epoll::close() {
-    ::close(epoll_fd_);
-}
-
 bool Epoll::insert(int fd, int events) {
     epoll_event event{};
     event.data.fd = fd;
@@ -37,18 +33,26 @@ bool Epoll::modify(int fd, int events) {
     return ret != -1;
 }
 
-EpollEvent Epoll::wait(int timeout) {
+FD_Event Epoll::wait(int timeout) {
     epoll_event event_arr[EPOLL_WAIT_BUFSIZE]{};
     if (!event_queue_.empty()) timeout = 0;
     int ret = epoll_wait(epoll_fd_, event_arr, EPOLL_WAIT_BUFSIZE, timeout);
     assert_throw(ret >= 0, "[epoll] wait failed");
     for (size_t i = 0; i < ret; ++i) {
-        event_queue_.push(EpollEvent((int)event_arr[i].data.fd, (uint32_t)event_arr[i].events));
+        event_queue_.push(fd_event((int)event_arr[i].data.fd, (uint32_t)event_arr[i].events));
     }
-    if (event_queue_.empty()) return EpollEvent(-1, 0);
-    EpollEvent result = event_queue_.front();
+    if (event_queue_.empty()) return FD_Event(-1, 0);
+    FD_Event result = event_queue_.front();
     event_queue_.pop();
     return result;
+}
+
+bool Epoll::is_open() {
+    return epoll_fd_ != -1;
+}
+
+void Epoll::close() {
+    ::close(epoll_fd_);
 }
 
 } // namespace iohub

@@ -1,15 +1,16 @@
-// Epoll.h
+// Poll.h
 
 #pragma once
-#ifndef IOHUB_EPOLL_H
-#define IOHUB_EPOLL_H
+#ifndef IOHUB_POLL_H
+#define IOHUB_POLL_H
 
 // C++
 #include <queue>
+#include <map>
 
 // Linux
 #include <unistd.h>
-#include <sys/epoll.h>
+#include <sys/select.h>
 
 // iohub
 #include "except.h"
@@ -17,13 +18,13 @@
 
 namespace iohub {
 
-class Epoll : public PollerBase {
-    int epoll_fd_;
+class Poll : PollerBase {
+    std::map<int, int> fd_map_;
     std::queue<FD_Event> event_queue_;
 
 public:
-    Epoll();
-    virtual ~Epoll() = default;
+    Poll();
+    virtual ~Poll() = default;
 
     virtual bool insert(int fd, int events) override;
     virtual bool erase(int fd) override;
@@ -34,8 +35,8 @@ public:
     virtual bool is_open() override;
     virtual void close() override;
 
-}; // class Epoll
+}; // class Poll
 
 } // namespace iohub
 
-#endif // IOHUB_EPOLL_H
+#endif // IOHUB_POLL_H

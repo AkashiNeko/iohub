@@ -62,7 +62,7 @@ inline void assert_throw(bool condition, const Args&... args) {
 
 // PollerBase
 
-using EpollEvent = std::pair<int, int>;
+using FD_Event = std::pair<int, int>;
 
 enum Event {
     IOHUB_IN  = 0x01,
@@ -76,7 +76,7 @@ public:
     virtual bool insert(int fd, int events) = 0;
     virtual bool erase(int fd) = 0;
     virtual bool modify(int fd, int events) = 0;
-    virtual EpollEvent wait(int timeout) = 0;
+    virtual FD_Event wait(int timeout) = 0;
     virtual void close() = 0;
 }; // class PollerBase
 
@@ -84,7 +84,7 @@ public:
 
 class Epoll : public PollerBase {
     int epoll_fd_;
-    std::queue<EpollEvent> event_queue_;
+    std::queue<FD_Event> event_queue_;
 
 public:
     Epoll();
@@ -94,7 +94,7 @@ public:
     virtual bool erase(int fd) override;
     virtual bool modify(int fd, int events) override;
 
-    virtual EpollEvent wait(int timeout = -1);
+    virtual FD_Event wait(int timeout = -1);
     virtual void close() override;
 
 }; // class Epoll
