@@ -1,11 +1,11 @@
-// epoll.cpp
+// Epoll.cpp
 
-#include "epoll.h"
+#include "Epoll.h"
 
 namespace iohub {
 
 namespace {
-const size_t EPOLL_WAIT_EVENT_BUFFER_SIZE = 16;
+const size_t EPOLL_WAIT_BUFSIZE = 16;
 }
 
 Epoll::Epoll() : epoll_fd_(epoll_create(1)) {
@@ -38,9 +38,9 @@ bool Epoll::modify(int fd, int events) {
 }
 
 EpollEvent Epoll::wait(int timeout) {
-    epoll_event event_arr[EPOLL_WAIT_EVENT_BUFFER_SIZE]{};
+    epoll_event event_arr[EPOLL_WAIT_BUFSIZE]{};
     if (!event_queue_.empty()) timeout = 0;
-    int ret = epoll_wait(epoll_fd_, event_arr, EPOLL_WAIT_EVENT_BUFFER_SIZE, timeout);
+    int ret = epoll_wait(epoll_fd_, event_arr, EPOLL_WAIT_BUFSIZE, timeout);
     assert_throw(ret >= 0, "[epoll] wait failed");
     for (size_t i = 0; i < ret; ++i) {
         event_queue_.push(EpollEvent((int)event_arr[i].data.fd, (uint32_t)event_arr[i].events));

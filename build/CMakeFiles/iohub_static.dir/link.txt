@@ -1,0 +1,2 @@
+/usr/bin/ar qc /home/akashi/project/iohub/out/libiohub.a CMakeFiles/iohub_static.dir/src/Epoll.cpp.o
+/usr/bin/ranlib /home/akashi/project/iohub/out/libiohub.a

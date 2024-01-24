@@ -1,13 +1,22 @@
-// except.h
+// nanonet.h
 
 #pragma once
-#ifndef IOHUB_EXCEPT_H_
-#define IOHUB_EXCEPT_H_
+#ifndef IOHUB_H
+#define IOHUB_H
 
+// C++
+#include <utility>
+#include <queue>
 #include <string>
 #include <exception>
 
+// Linux
+#include <unistd.h>
+#include <sys/epoll.h>
+
 namespace iohub {
+
+// except
 
 class IOHubExcept : public std::exception {
     std::string except_msg_;
@@ -51,6 +60,45 @@ inline void assert_throw(bool condition, const Args&... args) {
 
 #endif // __cplusplus
 
+// PollerBase
+
+using EpollEvent = std::pair<int, int>;
+
+enum Event {
+    IOHUB_IN  = 0x01,
+    IOHUB_PRI = 0x02,
+    IOHUB_OUT = 0x04,
+}; // Event
+
+class PollerBase {
+public:
+    virtual ~PollerBase() = 0;
+    virtual bool insert(int fd, int events) = 0;
+    virtual bool erase(int fd) = 0;
+    virtual bool modify(int fd, int events) = 0;
+    virtual EpollEvent wait(int timeout) = 0;
+    virtual void close() = 0;
+}; // class PollerBase
+
+// Epoll
+
+class Epoll : public PollerBase {
+    int epoll_fd_;
+    std::queue<EpollEvent> event_queue_;
+
+public:
+    Epoll();
+    virtual ~Epoll() = default;
+
+    virtual bool insert(int fd, int events) override;
+    virtual bool erase(int fd) override;
+    virtual bool modify(int fd, int events) override;
+
+    virtual EpollEvent wait(int timeout = -1);
+    virtual void close() override;
+
+}; // class Epoll
+
 } // namespace iohub
 
-#endif // IOHUB_EXCEPT_H_
+#endif // IOHUB_H

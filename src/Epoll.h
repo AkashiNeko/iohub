@@ -1,4 +1,4 @@
-// epoll.h
+// Epoll.h
 
 #pragma once
 #ifndef EPOLL_H
@@ -6,7 +6,6 @@
 
 // C++
 #include <queue>
-#include <utility>
 
 // Linux
 #include <unistd.h>
@@ -14,7 +13,7 @@
 
 // iohub
 #include "except.h"
-#include "poller_base.h"
+#include "PollerBase.h"
 
 namespace iohub {
 
@@ -26,12 +25,12 @@ public:
     Epoll();
     virtual ~Epoll() = default;
 
-    void close();
-    virtual bool insert(int fd, int events = EPOLLIN) override;
+    virtual bool insert(int fd, int events) override;
     virtual bool erase(int fd) override;
     virtual bool modify(int fd, int events) override;
 
     virtual EpollEvent wait(int timeout = -1);
+    virtual void close() override;
 
 }; // class Epoll
 
