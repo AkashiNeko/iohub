@@ -20,16 +20,17 @@ enum Event {
 
 class PollerBase {
 public:
-    virtual bool insert(int fd, int events) = 0;
-    virtual bool erase(int fd) = 0;
-    virtual bool modify(int fd, int events) = 0;
-    virtual int get_event(int fd) const = 0;
-    virtual size_t size() const = 0;
+    virtual bool insert(int fd, int events) noexcept = 0;
+    virtual bool erase(int fd) noexcept = 0;
+    virtual bool modify(int fd, int events) noexcept = 0;
+    virtual int get_event(int fd) const noexcept = 0;
+    virtual size_t size() const noexcept = 0;
+    virtual void clear() noexcept = 0;
 
     virtual FD_Event wait(int timeout) = 0;
 
-    virtual bool is_open() const = 0;
-    virtual void close() = 0;
+    virtual bool is_open() const noexcept = 0;
+    virtual void close() noexcept = 0;
 
 }; // class PollerBase
 

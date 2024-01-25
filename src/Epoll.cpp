@@ -12,8 +12,8 @@ Epoll::Epoll() : epoll_fd_(epoll_create(1)) {
     assert_throw(epoll_fd_ >= 0, "[epoll] epoll create failed");
 }
 
-bool Epoll::insert(int fd, int events) {
-    if (fd < 0 || events == 0) return false;
+bool Epoll::insert(int fd, int events) noexcept {
+    if (epoll_fd_ == -1 || fd < 0 || events == 0) return false;
     fd_map_[fd] |= events;
     epoll_event event{};
     event.data.fd = fd;
@@ -22,16 +22,16 @@ bool Epoll::insert(int fd, int events) {
     return ret == 0 ? (fd_map_[fd] = events, true) : false;
 }
 
-bool Epoll::erase(int fd) {
+bool Epoll::erase(int fd) noexcept {
+    if (epoll_fd_ == -1 || fd < 0) return false;
     auto it = fd_map_.find(fd);
     if (it == fd_map_.end()) return false;
     int ret = epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr);
     return ret == 0 ? (fd_map_.erase(it), true) : false;
 }
 
-bool Epoll::modify(int fd, int events) {
-    if (fd < 0) return false;
-    if (events == 0) return this->erase(fd);
+bool Epoll::modify(int fd, int events) noexcept {
+    if (epoll_fd_ == -1 || fd < 0 || events == 0) return false;
     auto it = fd_map_.find(fd);
     if (it == fd_map_.end()) return false;
     epoll_event event{};
@@ -41,16 +41,25 @@ bool Epoll::modify(int fd, int events) {
     return ret == 0 ? (it->second = events, true) : false;
 }
 
-int Epoll::get_event(int fd) const {
+int Epoll::get_event(int fd) const noexcept {
     auto it = fd_map_.find(fd);
     return it == fd_map_.end() ? 0 : it->second;
 }
 
-size_t Epoll::size() const {
+size_t Epoll::size() const noexcept {
     return fd_map_.size();
 }
 
+void Epoll::clear() noexcept {
+    for (auto fd_event : fd_map_) {
+        epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd_event.first, nullptr);
+    }
+    fd_map_.clear();
+    event_queue_ = {};
+}
+
 FD_Event Epoll::wait(int timeout) {
+    assert_throw(epoll_fd_ != -1, "[epoll] epoll is closed");
     epoll_event event_arr[EPOLL_WAIT_BUFSIZE]{};
     if (!event_queue_.empty()) timeout = 0;
     int ret = epoll_wait(epoll_fd_, event_arr, EPOLL_WAIT_BUFSIZE, timeout);
@@ -65,12 +74,16 @@ FD_Event Epoll::wait(int timeout) {
     return result;
 }
 
-bool Epoll::is_open() const {
+bool Epoll::is_open() const noexcept {
     return epoll_fd_ != -1;
 }
 
-void Epoll::close() {
-    ::close(epoll_fd_);
+void Epoll::close() noexcept {
+    if (epoll_fd_ != -1) {
+        this->clear();
+        ::close(epoll_fd_);
+        epoll_fd_ = -1;
+    }
 }
 
 } // namespace iohub

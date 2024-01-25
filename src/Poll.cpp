@@ -7,28 +7,31 @@ namespace iohub {
 Poll::Poll() {
 }
 
-bool Poll::insert(int fd, int events) {
+bool Poll::insert(int fd, int events) noexcept {
 }
 
-bool Poll::erase(int fd) {
+bool Poll::erase(int fd) noexcept {
 }
 
-bool Poll::modify(int fd, int events) {
+bool Poll::modify(int fd, int events) noexcept {
 }
 
-int Poll::get_event(int fd) const {
+int Poll::get_event(int fd) const noexcept {
 }
 
-size_t Poll::size() const {
+size_t Poll::size() const noexcept {
+}
+
+void Poll::clear() noexcept {
 }
 
 FD_Event Poll::wait(int timeout) {
 }
 
-bool Poll::is_open() const {
+bool Poll::is_open() const noexcept {
 }
 
-void Poll::close() {
+void Poll::close() noexcept {
 }
 
 } // namespace iohub
