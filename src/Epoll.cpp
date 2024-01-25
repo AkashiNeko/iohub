@@ -60,15 +60,20 @@ void Epoll::clear() noexcept {
 
 FD_Event Epoll::wait(int timeout) {
     assert_throw(epoll_fd_ != -1, "[epoll] epoll is closed");
-    epoll_event event_arr[EPOLL_WAIT_BUFSIZE]{};
-    if (!event_queue_.empty()) timeout = 0;
-    int ret = epoll_wait(epoll_fd_, event_arr, EPOLL_WAIT_BUFSIZE, timeout);
-    assert_throw(ret >= 0, "[epoll] wait failed");
-    for (size_t i = 0; i < ret; ++i) {
-        event_queue_.push(FD_Event(static_cast<int>(event_arr[i].data.fd),
-            static_cast<int>(event_arr[i].events)));
+    if (event_queue_.empty()) {
+        epoll_event event_arr[EPOLL_WAIT_BUFSIZE]{};
+        int ret = epoll_wait(epoll_fd_, event_arr, EPOLL_WAIT_BUFSIZE, timeout);
+        assert_throw(ret >= 0, "[epoll] wait failed");
+        if (ret == 0) return FD_Event(-1, 0);
+        for (size_t i = 0; i < ret; ++i) {
+            try {
+                event_queue_.push(FD_Event(static_cast<int>(event_arr[i].data.fd),
+                    static_cast<int>(event_arr[i].events)));
+            } catch (const std::exception& e) {
+                assert_throw(false, "[epoll] push event queue: ", e.what());
+            }
+        }
     }
-    if (event_queue_.empty()) return FD_Event(-1, 0);
     FD_Event result = event_queue_.front();
     event_queue_.pop();
     return result;

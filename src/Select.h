@@ -21,8 +21,9 @@ namespace iohub {
 class Select : PollerBase {
     std::map<int, int> fd_map_;
     std::queue<FD_Event> event_queue_;
-    
-
+    fd_set read_fds_;
+    fd_set write_fds_;
+    fd_set except_fds_;
 public:
     Select();
     virtual ~Select() = default;
