@@ -9,6 +9,8 @@
 #include <queue>
 #include <string>
 #include <exception>
+#include <map>
+#include <unordered_map>
 
 // Linux
 #include <unistd.h>
@@ -62,6 +64,7 @@ inline void assert_throw(bool condition, const Args&... args) {
 
 // PollerBase
 
+// pair {fd: int, event: int}
 using FD_Event = std::pair<int, int>;
 
 enum Event {
@@ -72,18 +75,68 @@ enum Event {
 
 class PollerBase {
 public:
-    virtual ~PollerBase() = 0;
     virtual bool insert(int fd, int events) = 0;
     virtual bool erase(int fd) = 0;
     virtual bool modify(int fd, int events) = 0;
+    virtual int get_event(int fd) const = 0;
+    virtual size_t size() const = 0;
+
     virtual FD_Event wait(int timeout) = 0;
+
+    virtual bool is_open() const = 0;
     virtual void close() = 0;
+
 }; // class PollerBase
 
-// Epoll
+// Select
 
+class Select : PollerBase {
+    std::map<int, int> fd_map_;
+    std::queue<FD_Event> event_queue_;
+
+public:
+    Select();
+    virtual ~Select() = default;
+
+    virtual bool insert(int fd, int events) override;
+    virtual bool erase(int fd) override;
+    virtual bool modify(int fd, int events) override;
+    virtual int get_event(int fd) const override;
+    virtual size_t size() const override;
+
+    virtual FD_Event wait(int timeout = -1);
+
+    virtual bool is_open() const override;
+    virtual void close() override;
+
+}; // class Select
+
+// Poll
+class Poll : PollerBase {
+    std::map<int, int> fd_map_;
+    std::queue<FD_Event> event_queue_;
+
+public:
+    Poll();
+    virtual ~Poll() = default;
+
+    virtual bool insert(int fd, int events) override;
+    virtual bool erase(int fd) override;
+    virtual bool modify(int fd, int events) override;
+    virtual int get_event(int fd) const override;
+    virtual size_t size() const override;
+
+    virtual FD_Event wait(int timeout = -1);
+
+    virtual bool is_open() const override;
+    virtual void close() override;
+
+}; // class Poll
+
+// Epoll
 class Epoll : public PollerBase {
     int epoll_fd_;
+    std::unordered_map<int, int> fd_map_;
     std::queue<FD_Event> event_queue_;
 
 public:
@@ -93,8 +146,12 @@ public:
     virtual bool insert(int fd, int events) override;
     virtual bool erase(int fd) override;
     virtual bool modify(int fd, int events) override;
+    virtual int get_event(int fd) const override;
+    virtual size_t size() const override;
 
     virtual FD_Event wait(int timeout = -1);
+
+    virtual bool is_open() const override;
     virtual void close() override;
 
 }; // class Epoll
