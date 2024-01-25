@@ -6,7 +6,7 @@
 
 // C++
 #include <queue>
-#include <map>
+#include <set>
 
 // Linux
 #include <unistd.h>
@@ -19,11 +19,12 @@
 namespace iohub {
 
 class Select : PollerBase {
-    std::map<int, int> fd_map_;
     std::queue<FD_Event> event_queue_;
-    fd_set read_fds_;
-    fd_set write_fds_;
-    fd_set except_fds_;
+    std::vector<unsigned char> fdarr_;
+    size_t max_index_;
+    fd_set readfds_, writefds_, exceptfds_;
+    bool is_open_;
+
 public:
     Select();
     virtual ~Select() = default;
