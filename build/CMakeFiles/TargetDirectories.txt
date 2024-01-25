@@ -1,4 +1,0 @@
-/home/akashi/project/iohub/build/CMakeFiles/iohub.dir
-/home/akashi/project/iohub/build/CMakeFiles/iohub_static.dir
-/home/akashi/project/iohub/build/CMakeFiles/edit_cache.dir
-/home/akashi/project/iohub/build/CMakeFiles/rebuild_cache.dir

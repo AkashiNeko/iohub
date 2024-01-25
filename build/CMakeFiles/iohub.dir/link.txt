@@ -1,1 +1,0 @@
-/usr/bin/g++ -fPIC -g -shared -Wl,-soname,libiohub.so -o /home/akashi/project/iohub/out/libiohub.so CMakeFiles/iohub.dir/src/Epoll.cpp.o CMakeFiles/iohub.dir/src/Poll.cpp.o CMakeFiles/iohub.dir/src/Select.cpp.o 
