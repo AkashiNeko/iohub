@@ -13,24 +13,41 @@ Epoll::Epoll() : epoll_fd_(epoll_create(1)) {
 }
 
 bool Epoll::insert(int fd, int events) {
+    if (fd < 0 || events == 0) return false;
+    fd_map_[fd] |= events;
     epoll_event event{};
     event.data.fd = fd;
     event.events = events;
     int ret = epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, fd, &event);
-    return ret != -1;
+    return ret == 0 ? (fd_map_[fd] = events, true) : false;
 }
 
 bool Epoll::erase(int fd) {
+    auto it = fd_map_.find(fd);
+    if (it == fd_map_.end()) return false;
     int ret = epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr);
-    return ret != -1;
+    return ret == 0 ? (fd_map_.erase(it), true) : false;
 }
 
 bool Epoll::modify(int fd, int events) {
+    if (fd < 0) return false;
+    if (events == 0) return this->erase(fd);
+    auto it = fd_map_.find(fd);
+    if (it == fd_map_.end()) return false;
     epoll_event event{};
     event.data.fd = fd;
     event.events = events;
     int ret = epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, &event);
-    return ret != -1;
+    return ret == 0 ? (it->second = events, true) : false;
+}
+
+int Epoll::get_event(int fd) const {
+    auto it = fd_map_.find(fd);
+    return it == fd_map_.end() ? 0 : it->second;
+}
+
+size_t Epoll::size() const {
+    return fd_map_.size();
 }
 
 FD_Event Epoll::wait(int timeout) {
@@ -39,7 +56,8 @@ FD_Event Epoll::wait(int timeout) {
     int ret = epoll_wait(epoll_fd_, event_arr, EPOLL_WAIT_BUFSIZE, timeout);
     assert_throw(ret >= 0, "[epoll] wait failed");
     for (size_t i = 0; i < ret; ++i) {
-        event_queue_.push(fd_event((int)event_arr[i].data.fd, (uint32_t)event_arr[i].events));
+        event_queue_.push(FD_Event(static_cast<int>(event_arr[i].data.fd),
+            static_cast<int>(event_arr[i].events)));
     }
     if (event_queue_.empty()) return FD_Event(-1, 0);
     FD_Event result = event_queue_.front();
@@ -47,7 +65,7 @@ FD_Event Epoll::wait(int timeout) {
     return result;
 }
 
-bool Epoll::is_open() {
+bool Epoll::is_open() const {
     return epoll_fd_ != -1;
 }
 

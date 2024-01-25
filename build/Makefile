@@ -169,6 +169,60 @@ src/Epoll.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/iohub_static.dir/build.make CMakeFiles/iohub_static.dir/src/Epoll.cpp.s
 .PHONY : src/Epoll.cpp.s
 
+src/Poll.o: src/Poll.cpp.o
+.PHONY : src/Poll.o
+
+# target to build an object file
+src/Poll.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/iohub.dir/build.make CMakeFiles/iohub.dir/src/Poll.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/iohub_static.dir/build.make CMakeFiles/iohub_static.dir/src/Poll.cpp.o
+.PHONY : src/Poll.cpp.o
+
+src/Poll.i: src/Poll.cpp.i
+.PHONY : src/Poll.i
+
+# target to preprocess a source file
+src/Poll.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/iohub.dir/build.make CMakeFiles/iohub.dir/src/Poll.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/iohub_static.dir/build.make CMakeFiles/iohub_static.dir/src/Poll.cpp.i
+.PHONY : src/Poll.cpp.i
+
+src/Poll.s: src/Poll.cpp.s
+.PHONY : src/Poll.s
+
+# target to generate assembly for a file
+src/Poll.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/iohub.dir/build.make CMakeFiles/iohub.dir/src/Poll.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/iohub_static.dir/build.make CMakeFiles/iohub_static.dir/src/Poll.cpp.s
+.PHONY : src/Poll.cpp.s
+
+src/Select.o: src/Select.cpp.o
+.PHONY : src/Select.o
+
+# target to build an object file
+src/Select.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/iohub.dir/build.make CMakeFiles/iohub.dir/src/Select.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/iohub_static.dir/build.make CMakeFiles/iohub_static.dir/src/Select.cpp.o
+.PHONY : src/Select.cpp.o
+
+src/Select.i: src/Select.cpp.i
+.PHONY : src/Select.i
+
+# target to preprocess a source file
+src/Select.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/iohub.dir/build.make CMakeFiles/iohub.dir/src/Select.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/iohub_static.dir/build.make CMakeFiles/iohub_static.dir/src/Select.cpp.i
+.PHONY : src/Select.cpp.i
+
+src/Select.s: src/Select.cpp.s
+.PHONY : src/Select.s
+
+# target to generate assembly for a file
+src/Select.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/iohub.dir/build.make CMakeFiles/iohub.dir/src/Select.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/iohub_static.dir/build.make CMakeFiles/iohub_static.dir/src/Select.cpp.s
+.PHONY : src/Select.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -182,6 +236,12 @@ help:
 	@echo "... src/Epoll.o"
 	@echo "... src/Epoll.i"
 	@echo "... src/Epoll.s"
+	@echo "... src/Poll.o"
+	@echo "... src/Poll.i"
+	@echo "... src/Poll.s"
+	@echo "... src/Select.o"
+	@echo "... src/Select.i"
+	@echo "... src/Select.s"
 .PHONY : help
 
 

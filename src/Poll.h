@@ -29,10 +29,12 @@ public:
     virtual bool insert(int fd, int events) override;
     virtual bool erase(int fd) override;
     virtual bool modify(int fd, int events) override;
+    virtual int get_event(int fd) const override;
+    virtual size_t size() const override;
 
     virtual FD_Event wait(int timeout = -1);
 
-    virtual bool is_open() override;
+    virtual bool is_open() const override;
     virtual void close() override;
 
 }; // class Poll

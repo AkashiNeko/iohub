@@ -73,27 +73,59 @@ CMakeFiles/iohub_static.dir/src/Epoll.cpp.o: CMakeFiles/iohub_static.dir/flags.m
 CMakeFiles/iohub_static.dir/src/Epoll.cpp.o: /home/akashi/project/iohub/src/Epoll.cpp
 CMakeFiles/iohub_static.dir/src/Epoll.cpp.o: CMakeFiles/iohub_static.dir/compiler_depend.ts
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/akashi/project/iohub/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/iohub_static.dir/src/Epoll.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/iohub_static.dir/src/Epoll.cpp.o -MF CMakeFiles/iohub_static.dir/src/Epoll.cpp.o.d -o CMakeFiles/iohub_static.dir/src/Epoll.cpp.o -c /home/akashi/project/iohub/src/Epoll.cpp
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/iohub_static.dir/src/Epoll.cpp.o -MF CMakeFiles/iohub_static.dir/src/Epoll.cpp.o.d -o CMakeFiles/iohub_static.dir/src/Epoll.cpp.o -c /home/akashi/project/iohub/src/Epoll.cpp
 
 CMakeFiles/iohub_static.dir/src/Epoll.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/iohub_static.dir/src/Epoll.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/akashi/project/iohub/src/Epoll.cpp > CMakeFiles/iohub_static.dir/src/Epoll.cpp.i
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/akashi/project/iohub/src/Epoll.cpp > CMakeFiles/iohub_static.dir/src/Epoll.cpp.i
 
 CMakeFiles/iohub_static.dir/src/Epoll.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/iohub_static.dir/src/Epoll.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/akashi/project/iohub/src/Epoll.cpp -o CMakeFiles/iohub_static.dir/src/Epoll.cpp.s
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/akashi/project/iohub/src/Epoll.cpp -o CMakeFiles/iohub_static.dir/src/Epoll.cpp.s
+
+CMakeFiles/iohub_static.dir/src/Poll.cpp.o: CMakeFiles/iohub_static.dir/flags.make
+CMakeFiles/iohub_static.dir/src/Poll.cpp.o: /home/akashi/project/iohub/src/Poll.cpp
+CMakeFiles/iohub_static.dir/src/Poll.cpp.o: CMakeFiles/iohub_static.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/akashi/project/iohub/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/iohub_static.dir/src/Poll.cpp.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/iohub_static.dir/src/Poll.cpp.o -MF CMakeFiles/iohub_static.dir/src/Poll.cpp.o.d -o CMakeFiles/iohub_static.dir/src/Poll.cpp.o -c /home/akashi/project/iohub/src/Poll.cpp
+
+CMakeFiles/iohub_static.dir/src/Poll.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/iohub_static.dir/src/Poll.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/akashi/project/iohub/src/Poll.cpp > CMakeFiles/iohub_static.dir/src/Poll.cpp.i
+
+CMakeFiles/iohub_static.dir/src/Poll.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/iohub_static.dir/src/Poll.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/akashi/project/iohub/src/Poll.cpp -o CMakeFiles/iohub_static.dir/src/Poll.cpp.s
+
+CMakeFiles/iohub_static.dir/src/Select.cpp.o: CMakeFiles/iohub_static.dir/flags.make
+CMakeFiles/iohub_static.dir/src/Select.cpp.o: /home/akashi/project/iohub/src/Select.cpp
+CMakeFiles/iohub_static.dir/src/Select.cpp.o: CMakeFiles/iohub_static.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/akashi/project/iohub/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/iohub_static.dir/src/Select.cpp.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/iohub_static.dir/src/Select.cpp.o -MF CMakeFiles/iohub_static.dir/src/Select.cpp.o.d -o CMakeFiles/iohub_static.dir/src/Select.cpp.o -c /home/akashi/project/iohub/src/Select.cpp
+
+CMakeFiles/iohub_static.dir/src/Select.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/iohub_static.dir/src/Select.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/akashi/project/iohub/src/Select.cpp > CMakeFiles/iohub_static.dir/src/Select.cpp.i
+
+CMakeFiles/iohub_static.dir/src/Select.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/iohub_static.dir/src/Select.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/akashi/project/iohub/src/Select.cpp -o CMakeFiles/iohub_static.dir/src/Select.cpp.s
 
 # Object files for target iohub_static
 iohub_static_OBJECTS = \
-"CMakeFiles/iohub_static.dir/src/Epoll.cpp.o"
+"CMakeFiles/iohub_static.dir/src/Epoll.cpp.o" \
+"CMakeFiles/iohub_static.dir/src/Poll.cpp.o" \
+"CMakeFiles/iohub_static.dir/src/Select.cpp.o"
 
 # External object files for target iohub_static
 iohub_static_EXTERNAL_OBJECTS =
 
 /home/akashi/project/iohub/out/libiohub.a: CMakeFiles/iohub_static.dir/src/Epoll.cpp.o
+/home/akashi/project/iohub/out/libiohub.a: CMakeFiles/iohub_static.dir/src/Poll.cpp.o
+/home/akashi/project/iohub/out/libiohub.a: CMakeFiles/iohub_static.dir/src/Select.cpp.o
 /home/akashi/project/iohub/out/libiohub.a: CMakeFiles/iohub_static.dir/build.make
 /home/akashi/project/iohub/out/libiohub.a: CMakeFiles/iohub_static.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/akashi/project/iohub/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library /home/akashi/project/iohub/out/libiohub.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/akashi/project/iohub/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX static library /home/akashi/project/iohub/out/libiohub.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/iohub_static.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/iohub_static.dir/link.txt --verbose=$(VERBOSE)
 

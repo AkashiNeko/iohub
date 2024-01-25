@@ -16,10 +16,16 @@ bool Select::erase(int fd) {
 bool Select::modify(int fd, int events) {
 }
 
+int Select::get_event(int fd) const {
+}
+
+size_t Select::size() const {
+}
+
 FD_Event Select::wait(int timeout) {
 }
 
-bool Select::is_open() {
+bool Select::is_open() const {
 }
 
 void Select::close() {

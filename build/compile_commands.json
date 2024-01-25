@@ -1,0 +1,38 @@
+[
+{
+  "directory": "/home/akashi/project/iohub/build",
+  "command": "/usr/bin/g++ -Diohub_EXPORTS  -g -std=gnu++11 -fPIC -o CMakeFiles/iohub.dir/src/Epoll.cpp.o -c /home/akashi/project/iohub/src/Epoll.cpp",
+  "file": "/home/akashi/project/iohub/src/Epoll.cpp",
+  "output": "CMakeFiles/iohub.dir/src/Epoll.cpp.o"
+},
+{
+  "directory": "/home/akashi/project/iohub/build",
+  "command": "/usr/bin/g++ -Diohub_EXPORTS  -g -std=gnu++11 -fPIC -o CMakeFiles/iohub.dir/src/Poll.cpp.o -c /home/akashi/project/iohub/src/Poll.cpp",
+  "file": "/home/akashi/project/iohub/src/Poll.cpp",
+  "output": "CMakeFiles/iohub.dir/src/Poll.cpp.o"
+},
+{
+  "directory": "/home/akashi/project/iohub/build",
+  "command": "/usr/bin/g++ -Diohub_EXPORTS  -g -std=gnu++11 -fPIC -o CMakeFiles/iohub.dir/src/Select.cpp.o -c /home/akashi/project/iohub/src/Select.cpp",
+  "file": "/home/akashi/project/iohub/src/Select.cpp",
+  "output": "CMakeFiles/iohub.dir/src/Select.cpp.o"
+},
+{
+  "directory": "/home/akashi/project/iohub/build",
+  "command": "/usr/bin/g++   -g -std=gnu++11 -o CMakeFiles/iohub_static.dir/src/Epoll.cpp.o -c /home/akashi/project/iohub/src/Epoll.cpp",
+  "file": "/home/akashi/project/iohub/src/Epoll.cpp",
+  "output": "CMakeFiles/iohub_static.dir/src/Epoll.cpp.o"
+},
+{
+  "directory": "/home/akashi/project/iohub/build",
+  "command": "/usr/bin/g++   -g -std=gnu++11 -o CMakeFiles/iohub_static.dir/src/Poll.cpp.o -c /home/akashi/project/iohub/src/Poll.cpp",
+  "file": "/home/akashi/project/iohub/src/Poll.cpp",
+  "output": "CMakeFiles/iohub_static.dir/src/Poll.cpp.o"
+},
+{
+  "directory": "/home/akashi/project/iohub/build",
+  "command": "/usr/bin/g++   -g -std=gnu++11 -o CMakeFiles/iohub_static.dir/src/Select.cpp.o -c /home/akashi/project/iohub/src/Select.cpp",
+  "file": "/home/akashi/project/iohub/src/Select.cpp",
+  "output": "CMakeFiles/iohub_static.dir/src/Select.cpp.o"
+}
+]
