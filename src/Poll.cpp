@@ -25,7 +25,7 @@ size_t Poll::size() const noexcept {
 void Poll::clear() noexcept {
 }
 
-FD_Event Poll::wait(int timeout) {
+fd_event_t Poll::wait(int timeout) {
 }
 
 bool Poll::is_open() const noexcept {

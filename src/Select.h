@@ -19,9 +19,9 @@
 namespace iohub {
 
 class Select : public PollerBase {
-    std::queue<FD_Event> event_queue_;
-    std::vector<unsigned char> fdarr_;
-    size_t max_, size_, read_sz_, write_sz_, except_sz_;
+    std::queue<fd_event_t> event_queue_;
+    std::vector<unsigned char> fd_arr_;
+    size_t max_, size_, readsz_, writesz_, exceptsz_;
     fd_set readfds_, writefds_, exceptfds_;
     bool is_open_;
 
@@ -36,7 +36,7 @@ public:
     virtual size_t size() const noexcept override;
     virtual void clear() noexcept override;
 
-    virtual FD_Event wait(int timeout = -1);
+    virtual fd_event_t wait(int timeout = -1);
 
     virtual bool is_open() const noexcept override;
     virtual void close() noexcept override;

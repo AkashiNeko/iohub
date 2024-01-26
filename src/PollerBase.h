@@ -10,7 +10,7 @@
 namespace iohub {
 
 // pair {fd: int, event: int}
-using FD_Event = std::pair<int, int>;
+using fd_event_t = std::pair<int, int>;
 
 enum Event {
     IOHUB_IN  = 0x01,
@@ -30,7 +30,7 @@ public:
     virtual size_t size() const noexcept = 0;
     virtual void clear() noexcept = 0;
 
-    virtual FD_Event wait(int timeout = -1) = 0;
+    virtual fd_event_t wait(int timeout = -1) = 0;
 
     virtual bool is_open() const noexcept = 0;
     virtual void close() noexcept = 0;
