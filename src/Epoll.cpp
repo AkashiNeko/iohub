@@ -60,6 +60,7 @@ void Epoll::clear() noexcept {
 
 FD_Event Epoll::wait(int timeout) {
     assert_throw(epoll_fd_ != -1, "[epoll] epoll is closed");
+    assert_throw(fd_map_.size() > 0, "[epoll] epoll is empty");
     if (event_queue_.empty()) {
         epoll_event event_arr[EPOLL_WAIT_BUFSIZE]{};
         int ret = epoll_wait(epoll_fd_, event_arr, EPOLL_WAIT_BUFSIZE, timeout);

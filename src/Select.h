@@ -21,7 +21,7 @@ namespace iohub {
 class Select : PollerBase {
     std::queue<FD_Event> event_queue_;
     std::vector<unsigned char> fdarr_;
-    size_t max_index_;
+    size_t max_, size_, read_sz_, write_sz_, except_sz_;
     fd_set readfds_, writefds_, exceptfds_;
     bool is_open_;
 

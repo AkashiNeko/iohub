@@ -19,7 +19,9 @@
 namespace iohub {
 
 class Poll : PollerBase {
-    std::map<int, int> fd_map_;
+    std::vector<unsigned char> fdarr_;
+    size_t max_;
+    size_t size_;
     std::queue<FD_Event> event_queue_;
 
 public:
