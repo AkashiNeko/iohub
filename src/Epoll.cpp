@@ -13,32 +13,31 @@ Epoll::Epoll() : epoll_fd_(epoll_create(1)) {
 }
 
 bool Epoll::insert(int fd, int events) noexcept {
-    if (epoll_fd_ == -1 || fd < 0 || events == 0) return false;
-    fd_map_[fd] |= events;
+    if (epoll_fd_ == -1 || fd < 0 || !events || fd_map_.count(fd)) return false;
+    fd_map_[fd] = events;
     epoll_event event{};
     event.data.fd = fd;
     event.events = events;
-    int ret = epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, fd, &event);
-    return ret == 0 ? (fd_map_[fd] = events, true) : false;
+    return !epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, fd, &event);
 }
 
 bool Epoll::erase(int fd) noexcept {
     if (epoll_fd_ == -1 || fd < 0) return false;
     auto it = fd_map_.find(fd);
     if (it == fd_map_.end()) return false;
-    int ret = epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr);
-    return ret == 0 ? (fd_map_.erase(it), true) : false;
+    fd_map_.erase(it);
+    return !epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr);
 }
 
 bool Epoll::modify(int fd, int events) noexcept {
     if (epoll_fd_ == -1 || fd < 0 || events == 0) return false;
     auto it = fd_map_.find(fd);
     if (it == fd_map_.end()) return false;
+    it->second = events;
     epoll_event event{};
     event.data.fd = fd;
     event.events = events;
-    int ret = epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, &event);
-    return ret == 0 ? (it->second = events, true) : false;
+    return !epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, &event);
 }
 
 int Epoll::get_event(int fd) const noexcept {
