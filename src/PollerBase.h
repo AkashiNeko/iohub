@@ -20,8 +20,13 @@ enum Event {
 
 class PollerBase {
 public:
+    // ctor & dtor
     PollerBase() = default;
-    virtual ~PollerBase() = default;
+    virtual ~PollerBase() = 0;
+
+    // uncopyable
+    PollerBase(const PollerBase&) = delete;
+    PollerBase& operator=(const PollerBase&) = delete;
 
     virtual bool insert(int fd, int events) noexcept = 0;
     virtual bool erase(int fd) noexcept = 0;

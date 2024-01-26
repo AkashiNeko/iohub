@@ -8,7 +8,9 @@ namespace {
 const size_t EPOLL_WAIT_BUFSIZE = 16;
 }
 
-Epoll::Epoll() : epoll_fd_(epoll_create(1)) {
+Epoll::Epoll()
+    : epoll_fd_(epoll_create(1))
+{
     assert_throw(epoll_fd_ >= 0, "[epoll] epoll create failed");
 }
 

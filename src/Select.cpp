@@ -5,7 +5,13 @@
 namespace iohub {
 
 Select::Select()
-    :fd_arr_(32), max_(-1), size_(0), readsz_(0), writesz_(0), exceptsz_(0) {
+    : fd_arr_(32)
+    , max_(-1)
+    , size_(0)
+    , readsz_(0)
+    , writesz_(0)
+    , exceptsz_(0)
+{
     FD_ZERO(&readfds_);
     FD_ZERO(&writefds_);
     FD_ZERO(&exceptfds_);

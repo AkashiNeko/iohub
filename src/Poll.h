@@ -7,6 +7,8 @@
 // C++
 #include <queue>
 #include <unordered_map>
+#include <memory>
+#include <functional>
 
 // Linux
 #include <unistd.h>
@@ -21,6 +23,8 @@ namespace iohub {
 class Poll : public PollerBase {
     std::unordered_map<int, int> fd_map_;
     std::queue<fd_event_t> event_queue_;
+    std::vector<pollfd> pollfd_arr_;
+    bool is_open_;
 
 public:
     Poll();
