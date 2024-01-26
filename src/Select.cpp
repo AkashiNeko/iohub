@@ -13,7 +13,7 @@ Select::Select()
 }
 
 bool Select::insert(int fd, int events) noexcept {
-    if (!is_open_ || fd < 0 || !events || (events | ~0b111)) return false;
+    if (!is_open_ || fd < 0 || !events || (events & ~0b111)) return false;
     try {
         if (fd >= fdarr_.size()) fdarr_.resize(fdarr_.size() << 1);
     } catch (...) {
@@ -22,15 +22,15 @@ bool Select::insert(int fd, int events) noexcept {
     if (fdarr_[fd]) return false;
     if (size_++ == 0 || fd > max_) max_ = fd;
     fdarr_[fd] = events;
-    if (events | IOHUB_IN) {
+    if (events & IOHUB_IN) {
         FD_SET(fd, &readfds_);
         ++read_sz_;
     }
-    if (events | IOHUB_OUT) {
+    if (events & IOHUB_OUT) {
         FD_SET(fd, &writefds_);
         ++write_sz_;
     }
-    if (events | IOHUB_PRI) {
+    if (events & IOHUB_PRI) {
         FD_SET(fd, &exceptfds_);
         ++except_sz_;
     }
@@ -40,15 +40,15 @@ bool Select::insert(int fd, int events) noexcept {
 bool Select::erase(int fd) noexcept {
     if (!is_open_ || fd < 0 || fd >= fdarr_.size() || !fdarr_[fd]) return false;
     unsigned char& old_events = fdarr_[fd];
-    if (old_events | IOHUB_IN) {
+    if (old_events & IOHUB_IN) {
         FD_CLR(fd, &readfds_);
         --read_sz_;
     }
-    if (old_events | IOHUB_OUT) {
+    if (old_events & IOHUB_OUT) {
         FD_CLR(fd, &writefds_);
         --write_sz_;
     }
-    if (old_events | IOHUB_PRI) {
+    if (old_events & IOHUB_PRI) {
         FD_CLR(fd, &exceptfds_);
         --except_sz_;
     }
@@ -63,7 +63,7 @@ bool Select::erase(int fd) noexcept {
 
 bool Select::modify(int fd, int events) noexcept {
     if (!is_open_ || fd < 0 || fd >= fdarr_.size()
-        || !fdarr_[fd] || (events | ~0b111) || !events)
+        || !fdarr_[fd] || (events & ~0b111) || !events)
         return false;
     unsigned char& old_events = fdarr_[fd];
     read_sz_ += !!(events & IOHUB_IN) - !!(old_events & IOHUB_IN);
@@ -94,7 +94,7 @@ void Select::clear() noexcept {
 
 FD_Event Select::wait(int timeout) {
     assert_throw(is_open_, "[select] select is closed");
-    assert_throw(size_ > 0, "[epoll] epoll is empty");
+    assert_throw(size_ > 0, "[select] select is empty");
     if (event_queue_.empty()) {
         timeval time{};
         timeval* ptime = nullptr;
@@ -107,8 +107,8 @@ FD_Event Select::wait(int timeout) {
         fd_set* pread = read_sz_ ? &(read = readfds_) : nullptr;
         fd_set* pwrite = write_sz_ ? &(write = writefds_) : nullptr;
         fd_set* pexcept = except_sz_ ? &(except = exceptfds_) : nullptr;
-        int ret = ::select(max_, pread, pwrite, pexcept, timeout == -1 ? nullptr : &time);
-        assert_throw(ret == -1, "[select] wait failed");
+        int ret = ::select(max_ + 1, pread, pwrite, pexcept, timeout == -1 ? nullptr : &time);
+        assert_throw(ret >= 0, "[select] wait failed");
         if (ret == 0) return FD_Event(-1, 0);
 
         for (size_t i = 0, cnt = 0; cnt < ret && i <= max_; ++i) {

@@ -75,61 +75,69 @@ enum Event {
 
 class PollerBase {
 public:
-    virtual bool insert(int fd, int events) = 0;
-    virtual bool erase(int fd) = 0;
-    virtual bool modify(int fd, int events) = 0;
-    virtual int get_event(int fd) const = 0;
-    virtual size_t size() const = 0;
+    virtual bool insert(int fd, int events) noexcept = 0;
+    virtual bool erase(int fd) noexcept = 0;
+    virtual bool modify(int fd, int events) noexcept = 0;
+    virtual int get_event(int fd) const noexcept = 0;
+    virtual size_t size() const noexcept = 0;
+    virtual void clear() noexcept = 0;
 
     virtual FD_Event wait(int timeout) = 0;
 
-    virtual bool is_open() const = 0;
-    virtual void close() = 0;
+    virtual bool is_open() const noexcept = 0;
+    virtual void close() noexcept = 0;
 
 }; // class PollerBase
 
 // Select
 
 class Select : PollerBase {
-    std::map<int, int> fd_map_;
     std::queue<FD_Event> event_queue_;
+    std::vector<unsigned char> fdarr_;
+    size_t max_, size_, read_sz_, write_sz_, except_sz_;
+    fd_set readfds_, writefds_, exceptfds_;
+    bool is_open_;
 
 public:
     Select();
     virtual ~Select() = default;
 
-    virtual bool insert(int fd, int events) override;
-    virtual bool erase(int fd) override;
-    virtual bool modify(int fd, int events) override;
-    virtual int get_event(int fd) const override;
-    virtual size_t size() const override;
+    virtual bool insert(int fd, int events) noexcept override;
+    virtual bool erase(int fd) noexcept override;
+    virtual bool modify(int fd, int events) noexcept override;
+    virtual int get_event(int fd) const noexcept override;
+    virtual size_t size() const noexcept override;
+    virtual void clear() noexcept override;
 
     virtual FD_Event wait(int timeout = -1);
 
-    virtual bool is_open() const override;
-    virtual void close() override;
+    virtual bool is_open() const noexcept override;
+    virtual void close() noexcept override;
 
 }; // class Select
 
 // Poll
 class Poll : PollerBase {
-    std::map<int, int> fd_map_;
+    std::vector<unsigned char> fdarr_;
+    size_t max_;
+    size_t size_;
     std::queue<FD_Event> event_queue_;
 
 public:
     Poll();
     virtual ~Poll() = default;
 
-    virtual bool insert(int fd, int events) override;
-    virtual bool erase(int fd) override;
-    virtual bool modify(int fd, int events) override;
-    virtual int get_event(int fd) const override;
-    virtual size_t size() const override;
+    virtual bool insert(int fd, int events) noexcept override;
+    virtual bool erase(int fd) noexcept override;
+    virtual bool modify(int fd, int events) noexcept override;
+    virtual int get_event(int fd) const noexcept override;
+    virtual size_t size() const noexcept override;
+    virtual void clear() noexcept override;
 
     virtual FD_Event wait(int timeout = -1);
 
-    virtual bool is_open() const override;
-    virtual void close() override;
+    virtual bool is_open() const noexcept override;
+    virtual void close() noexcept override;
 
 }; // class Poll
 
@@ -143,16 +151,17 @@ public:
     Epoll();
     virtual ~Epoll() = default;
 
-    virtual bool insert(int fd, int events) override;
-    virtual bool erase(int fd) override;
-    virtual bool modify(int fd, int events) override;
-    virtual int get_event(int fd) const override;
-    virtual size_t size() const override;
+    virtual bool insert(int fd, int events) noexcept override;
+    virtual bool erase(int fd) noexcept override;
+    virtual bool modify(int fd, int events) noexcept override;
+    virtual int get_event(int fd) const noexcept override;
+    virtual size_t size() const noexcept override;
+    virtual void clear() noexcept override;
 
     virtual FD_Event wait(int timeout = -1);
 
-    virtual bool is_open() const override;
-    virtual void close() override;
+    virtual bool is_open() const noexcept override;
+    virtual void close() noexcept override;
 
 }; // class Epoll
 
