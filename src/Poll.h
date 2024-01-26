@@ -18,7 +18,7 @@
 
 namespace iohub {
 
-class Poll : PollerBase {
+class Poll : public PollerBase {
     std::vector<unsigned char> fdarr_;
     size_t max_;
     size_t size_;
@@ -26,7 +26,7 @@ class Poll : PollerBase {
 
 public:
     Poll();
-    virtual ~Poll() = default;
+    virtual ~Poll() override = default;
 
     virtual bool insert(int fd, int events) noexcept override;
     virtual bool erase(int fd) noexcept override;

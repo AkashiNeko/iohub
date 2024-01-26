@@ -18,7 +18,7 @@
 
 namespace iohub {
 
-class Select : PollerBase {
+class Select : public PollerBase {
     std::queue<FD_Event> event_queue_;
     std::vector<unsigned char> fdarr_;
     size_t max_, size_, read_sz_, write_sz_, except_sz_;
@@ -27,7 +27,7 @@ class Select : PollerBase {
 
 public:
     Select();
-    virtual ~Select() = default;
+    virtual ~Select() override = default;
 
     virtual bool insert(int fd, int events) noexcept override;
     virtual bool erase(int fd) noexcept override;

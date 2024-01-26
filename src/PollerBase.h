@@ -20,6 +20,9 @@ enum Event {
 
 class PollerBase {
 public:
+    PollerBase() = default;
+    virtual ~PollerBase() = default;
+
     virtual bool insert(int fd, int events) noexcept = 0;
     virtual bool erase(int fd) noexcept = 0;
     virtual bool modify(int fd, int events) noexcept = 0;
@@ -27,7 +30,7 @@ public:
     virtual size_t size() const noexcept = 0;
     virtual void clear() noexcept = 0;
 
-    virtual FD_Event wait(int timeout) = 0;
+    virtual FD_Event wait(int timeout = -1) = 0;
 
     virtual bool is_open() const noexcept = 0;
     virtual void close() noexcept = 0;
