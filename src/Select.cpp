@@ -113,9 +113,9 @@ fd_event_t Select::wait(int timeout) {
         fd_set* pread = readsz_ ? &(read = readfds_) : nullptr;
         fd_set* pwrite = writesz_ ? &(write = writefds_) : nullptr;
         fd_set* pexcept = exceptsz_ ? &(except = exceptfds_) : nullptr;
-        int ret = ::select(max_ + 1, pread, pwrite, pexcept, timeout == -1 ? nullptr : &time);
-        assert_throw(ret >= 0, "[select] wait failed");
+        int ret = ::select(max_ + 1, pread, pwrite, pexcept, ptime);
         if (ret == 0) return fd_event_t(-1, 0);
+        assert_throw(ret > 0, "[select] wait failed");
 
         for (size_t i = 0, cnt = 0; cnt < ret && i <= max_; ++i) {
             if (fd_arr_[i]) {
