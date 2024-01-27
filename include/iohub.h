@@ -4,16 +4,22 @@
 #ifndef IOHUB_H
 #define IOHUB_H
 
+// C
+#include <cerrno>
+#include <cstring>
+
 // C++
+#include <exception>
 #include <utility>
 #include <queue>
 #include <string>
-#include <exception>
 #include <map>
 #include <unordered_map>
 
 // Linux
 #include <unistd.h>
+#include <sys/select.h>
+#include <sys/poll.h>
 #include <sys/epoll.h>
 
 namespace iohub {
@@ -62,8 +68,6 @@ inline void assert_throw(bool condition, const Args&... args) {
 
 #endif // __cplusplus
 
-// PollerBase
-
 // pair {fd: int, event: int}
 using fd_event_t = std::pair<int, int>;
 
@@ -73,16 +77,25 @@ enum Event {
     IOHUB_OUT = 0x04,
 }; // Event
 
+// PollerBase
 class PollerBase {
 public:
-    virtual bool insert(int fd, int events) noexcept = 0;
-    virtual bool erase(int fd) noexcept = 0;
-    virtual bool modify(int fd, int events) noexcept = 0;
+    // ctor & dtor
+    PollerBase() = default;
+    virtual ~PollerBase() = default;
+
+    // uncopyable
+    PollerBase(const PollerBase&) = delete;
+    PollerBase& operator=(const PollerBase&) = delete;
+
+    virtual void insert(int fd, int events) = 0;
+    virtual void erase(int fd) = 0;
+    virtual void modify(int fd, int events) = 0;
     virtual int get_event(int fd) const noexcept = 0;
     virtual size_t size() const noexcept = 0;
     virtual void clear() noexcept = 0;
 
-    virtual fd_event_t wait(int timeout) = 0;
+    virtual fd_event_t wait(int timeout = -1) = 0;
 
     virtual bool is_open() const noexcept = 0;
     virtual void close() noexcept = 0;
@@ -91,20 +104,20 @@ public:
 
 // Select
 
-class Select : PollerBase {
+class Select : public PollerBase {
     std::queue<fd_event_t> event_queue_;
-    std::vector<unsigned char> fdarr_;
-    size_t max_, size_, read_sz_, write_sz_, except_sz_;
+    std::vector<unsigned char> fd_hasharr_;
+    size_t max_, size_, readsz_, writesz_, exceptsz_;
     fd_set readfds_, writefds_, exceptfds_;
     bool is_open_;
 
 public:
     Select();
-    virtual ~Select() = default;
+    virtual ~Select() override = default;
 
-    virtual bool insert(int fd, int events) noexcept override;
-    virtual bool erase(int fd) noexcept override;
-    virtual bool modify(int fd, int events) noexcept override;
+    virtual void insert(int fd, int events) override;
+    virtual void erase(int fd) override;
+    virtual void modify(int fd, int events) override;
     virtual int get_event(int fd) const noexcept override;
     virtual size_t size() const noexcept override;
     virtual void clear() noexcept override;
@@ -117,19 +130,20 @@ public:
 }; // class Select
 
 // Poll
-class Poll : PollerBase {
-    std::vector<unsigned char> fdarr_;
-    size_t max_;
-    size_t size_;
+
+class Poll : public PollerBase {
     std::queue<fd_event_t> event_queue_;
+    std::unordered_map<int, int> fd_map_;
+    std::vector<pollfd> pollfd_arr_;
+    bool is_open_;
 
 public:
     Poll();
-    virtual ~Poll() = default;
+    virtual ~Poll() override = default;
 
-    virtual bool insert(int fd, int events) noexcept override;
-    virtual bool erase(int fd) noexcept override;
-    virtual bool modify(int fd, int events) noexcept override;
+    virtual void insert(int fd, int events) override;
+    virtual void erase(int fd) override;
+    virtual void modify(int fd, int events) override;
     virtual int get_event(int fd) const noexcept override;
     virtual size_t size() const noexcept override;
     virtual void clear() noexcept override;
@@ -142,18 +156,19 @@ public:
 }; // class Poll
 
 // Epoll
+
 class Epoll : public PollerBase {
-    int epoll_fd_;
-    std::unordered_map<int, int> fd_map_;
     std::queue<fd_event_t> event_queue_;
+    std::unordered_map<int, int> fd_map_;
+    int epoll_fd_;
 
 public:
     Epoll();
     virtual ~Epoll() = default;
 
-    virtual bool insert(int fd, int events) noexcept override;
-    virtual bool erase(int fd) noexcept override;
-    virtual bool modify(int fd, int events) noexcept override;
+    virtual void insert(int fd, int events) override;
+    virtual void erase(int fd) override;
+    virtual void modify(int fd, int events) override;
     virtual int get_event(int fd) const noexcept override;
     virtual size_t size() const noexcept override;
     virtual void clear() noexcept override;

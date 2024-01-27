@@ -20,12 +20,17 @@ enum Event {
 
 class PollerBase {
 public:
+    // ctor & dtor
     PollerBase() = default;
     virtual ~PollerBase() = default;
 
-    virtual bool insert(int fd, int events) noexcept = 0;
-    virtual bool erase(int fd) noexcept = 0;
-    virtual bool modify(int fd, int events) noexcept = 0;
+    // uncopyable
+    PollerBase(const PollerBase&) = delete;
+    PollerBase& operator=(const PollerBase&) = delete;
+
+    virtual void insert(int fd, int events) = 0;
+    virtual void erase(int fd) = 0;
+    virtual void modify(int fd, int events) = 0;
     virtual int get_event(int fd) const noexcept = 0;
     virtual size_t size() const noexcept = 0;
     virtual void clear() noexcept = 0;

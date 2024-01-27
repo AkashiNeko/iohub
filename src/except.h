@@ -4,6 +4,12 @@
 #ifndef IOHUB_EXCEPT_H_
 #define IOHUB_EXCEPT_H_
 
+
+// C
+#include <cerrno>
+#include <cstring>
+
+// C++
 #include <string>
 #include <exception>
 
