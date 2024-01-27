@@ -28,8 +28,9 @@ void Epoll::insert(int fd, int events) {
     epoll_event event{};
     event.data.fd = fd;
     event.events = events;
-    assert_throw(0 == epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, fd, &event),
-        "[epoll] insert: ", std::strerror(errno));
+    int ret = epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, fd, &event);
+    printf("insert: fd = %d, ret = %d\n", fd, ret);
+    assert_throw(!ret, "[epoll] insert: ", std::strerror(errno));
 }
 
 void Epoll::erase(int fd) {
@@ -43,8 +44,8 @@ void Epoll::erase(int fd) {
     fd_map_.erase(it);
 
     // delete fd event from epoll
-    assert_throw(0 == epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr),
-        "[epoll] erase: ", std::strerror(errno));
+    int ret = epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr);
+    assert_throw(!ret, "[epoll] erase: ", std::strerror(errno));
 }
 
 void Epoll::modify(int fd, int events) {
@@ -62,8 +63,8 @@ void Epoll::modify(int fd, int events) {
     epoll_event event{};
     event.data.fd = fd;
     event.events = events;
-    assert_throw(0 == epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, &event),
-        "[epoll] modify: ", std::strerror(errno));
+    int ret = epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, &event);
+    assert_throw(!ret, "[epoll] modify: ", std::strerror(errno));
 }
 
 int Epoll::get_event(int fd) const noexcept {
