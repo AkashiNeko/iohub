@@ -1,4 +1,4 @@
-// File:     src/Select.h
+// File:     src/EventQueue.h
 // Author:   AkashiNeko
 // Project:  iohub
 // Github:   https://github.com/AkashiNeko/iohub/
@@ -25,46 +25,37 @@
  */
 
 #pragma once
-#ifndef IOHUB_SELECT_H
-#define IOHUB_SELECT_H
+#ifndef IOHUB_EVENT_QUEUE_H
+#define IOHUB_EVENT_QUEUE_H
 
-// C++
-#include <queue>
-#include <set>
-
-// Linux
-#include <unistd.h>
-#include <sys/select.h>
-
-// iohub
-#include "except.h"
-#include "PollerBase.h"
+#include <vector>
 
 namespace iohub {
 
-class Select : public PollerBase {
-    std::vector<unsigned char> fd_hasharr_;
-    size_t max_, size_, readsz_, writesz_, exceptsz_;
-    fd_set readfds_, writefds_, exceptfds_;
-    bool is_open_;
+// pair {fd: int, event: int}
+using fd_event_t = std::pair<int, int>;
+
+class EventQueue {
+    struct Node {
+        int next = -1;
+        int prev = -1;
+        int event = 0;
+    }; // queue node
+
+    int front_;
+    std::vector<Node> vec_;
 
 public:
-    Select();
-    virtual ~Select() override = default;
 
-    virtual void insert(int fd, int events) override;
-    virtual void erase(int fd) override;
-    virtual void modify(int fd, int events) override;
-    virtual size_t size() const noexcept override;
-    virtual void clear() noexcept override;
+    EventQueue();
+    bool empty() const;
+    void push(const fd_event_t& fd_event);
+    fd_event_t pop();
+    void erase(int fd);
+    void clear();
 
-    virtual fd_event_t wait(int timeout = -1);
-
-    virtual bool is_open() const noexcept override;
-    virtual void close() noexcept override;
-
-}; // class Select
+}; // class EventQueue
 
 } // namespace iohub
 
-#endif // IOHUB_SELECT_H
+#endif // IOHUB_EVENT_QUEUE_H

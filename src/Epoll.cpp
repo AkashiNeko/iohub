@@ -32,10 +32,9 @@ namespace {
 const size_t EPOLL_WAIT_BUFSIZE = 16;
 }
 
-Epoll::Epoll()
-    : epoll_fd_(epoll_create(1))    // create epoll
-{
-    assert_throw(epoll_fd_ >= 0, "[epoll] Epoll create failed, ", std::strerror(errno));
+Epoll::Epoll() : epoll_fd_(epoll_create(1)) {
+    assert_throw(epoll_fd_ >= 0,
+        "[epoll] Epoll create failed, ", std::strerror(errno));
 }
 
 void Epoll::insert(int fd, int events) {
@@ -43,12 +42,7 @@ void Epoll::insert(int fd, int events) {
     assert_throw(epoll_fd_ != -1, "[epoll] insert: Epoll is closed");
     assert_throw(fd >= 0, "[epoll] insert: Invalid fd");
     assert_throw(events, "[epoll] insert: Events is empty. If you want to remove fd from epoll, use Epoll::erase()");
-    assert_throw(!fd_map_.count(fd), "[epoll] insert: The fd already exists. If you want to modify its event, use Epoll::modify()");
 
-    // insert to fd map
-    fd_map_[fd] = events;
-
-    // add fd event to epoll
     epoll_event event{};
     event.data.fd = fd;
     event.events = events;
@@ -60,27 +54,16 @@ void Epoll::erase(int fd) {
     // exceptions
     assert_throw(epoll_fd_ != -1, "[epoll] erase: Epoll is closed");
     assert_throw(fd >= 0, "[epoll] erase: Invalid fd");
-    auto it = fd_map_.find(fd);
-    assert_throw(it != fd_map_.end(), "[epoll] erase: The fd does not exist");
 
-    // remove fd from the fd map
-    fd_map_.erase(it);
-
-    // delete fd event from epoll
     int ret = epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr);
     assert_throw(!ret, "[epoll] erase: ", std::strerror(errno));
 }
 
-void Epoll::modify(int fd, int events) {
+void Epoll::modify(int fd, int events) { 
     // exceptions
     assert_throw(epoll_fd_ != -1, "[epoll] modify: Epoll is closed");
-    assert_throw(fd >= 0, "[epoll] modify: Invalid fd");
+    assert_throw(fd >= 0, "[epoll] modify: Invalid fd"); 
     assert_throw(events, "[epoll] modify: Events is empty. If you want to remove fd from epoll, use Epoll::erase()");
-    auto it = fd_map_.find(fd);
-    assert_throw(it != fd_map_.end(), "[epoll] modify: The fd does not exist");
-
-    // update the event from fd map
-    it->second = events;
 
     // modify the fd event from epoll
     epoll_event event{};
@@ -90,29 +73,19 @@ void Epoll::modify(int fd, int events) {
     assert_throw(!ret, "[epoll] modify: ", std::strerror(errno));
 }
 
-int Epoll::get_event(int fd) const noexcept {
-    // return 0 if fd does not exist, otherwise return an event
-    auto it = fd_map_.find(fd);
-    return it == fd_map_.end() ? 0 : it->second;
-}
-
 size_t Epoll::size() const noexcept {
     // return number of fds
-    return fd_map_.size();
+    return size_;
 }
 
 void Epoll::clear() noexcept {
-    for (auto fd_event : fd_map_) {
-        epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd_event.first, nullptr);
-    }
-    fd_map_.clear();
-    event_queue_ = {};
+    event_queue_.clear();
 }
 
 fd_event_t Epoll::wait(int timeout) {
     // exceptions
     assert_throw(epoll_fd_ != -1, "[epoll] wait: Epoll is closed");
-    assert_throw(!fd_map_.empty(), "[epoll] wait: Epoll is empty");
+    assert_throw(size_, "[epoll] wait: Epoll is empty");
 
     // push queue
     if (event_queue_.empty()) {
@@ -132,10 +105,7 @@ fd_event_t Epoll::wait(int timeout) {
         }
     } // queue is empty
 
-    // return front of queue
-    fd_event_t result = event_queue_.front();
-    event_queue_.pop();
-    return result;
+    return event_queue_.pop();
 }
 
 bool Epoll::is_open() const noexcept {

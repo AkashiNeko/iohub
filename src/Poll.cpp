@@ -78,12 +78,6 @@ void Poll::modify(int fd, int events) {
     pollfd_arr_[it->second].events = events;
 }
 
-int Poll::get_event(int fd) const noexcept {
-    // return 0 if fd does not exist, otherwise return an event
-    if (!is_open_ || !fd_map_.count(fd)) return 0;
-    return pollfd_arr_[fd_map_.at(fd)].events;
-}
-
 size_t Poll::size() const noexcept {
     // return number of fds
     return pollfd_arr_.size();
@@ -119,10 +113,7 @@ fd_event_t Poll::wait(int timeout) {
         }
     } // queue is empty
 
-    // return front of queue
-    fd_event_t result = event_queue_.front();
-    event_queue_.pop();
-    return result;
+    return event_queue_.pop();
 }
 
 bool Poll::is_open() const noexcept {

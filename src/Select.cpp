@@ -110,12 +110,6 @@ void Select::modify(int fd, int events) {
     old_events = events;
 }
 
-int Select::get_event(int fd) const noexcept {
-    // return 0 if fd does not exist, otherwise return an event
-    if (!is_open_ || fd < 0 || fd >= fd_hasharr_.size()) return 0;
-    return fd_hasharr_[fd];
-}
-
 size_t Select::size() const noexcept {
     // return number of fds
     return size_;
@@ -176,10 +170,7 @@ fd_event_t Select::wait(int timeout) {
         }
     } // queue is empty
 
-    // return front of queue
-    fd_event_t fd_event = event_queue_.front();
-    event_queue_.pop();
-    return fd_event;
+    return event_queue_.pop();
 }
 
 bool Select::is_open() const noexcept {

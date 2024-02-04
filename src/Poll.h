@@ -45,7 +45,6 @@
 namespace iohub {
 
 class Poll : public PollerBase {
-    std::queue<fd_event_t> event_queue_;
     std::unordered_map<int, int> fd_map_;
     std::vector<pollfd> pollfd_arr_;
     bool is_open_;
@@ -57,7 +56,6 @@ public:
     virtual void insert(int fd, int events) override;
     virtual void erase(int fd) override;
     virtual void modify(int fd, int events) override;
-    virtual int get_event(int fd) const noexcept override;
     virtual size_t size() const noexcept override;
     virtual void clear() noexcept override;
 

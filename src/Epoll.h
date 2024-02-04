@@ -29,7 +29,6 @@
 #define IOHUB_EPOLL_H
 
 // C++
-#include <queue>
 #include <unordered_map>
 
 // Linux
@@ -43,8 +42,7 @@
 namespace iohub {
 
 class Epoll : public PollerBase {
-    std::queue<fd_event_t> event_queue_;
-    std::unordered_map<int, int> fd_map_;
+    size_t size_;
     int epoll_fd_;
 
 public:
@@ -54,7 +52,6 @@ public:
     virtual void insert(int fd, int events) override;
     virtual void erase(int fd) override;
     virtual void modify(int fd, int events) override;
-    virtual int get_event(int fd) const noexcept override;
     virtual size_t size() const noexcept override;
     virtual void clear() noexcept override;
 
