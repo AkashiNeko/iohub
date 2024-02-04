@@ -45,12 +45,12 @@ Select::Select()
 
 void Select::insert(int fd, int events) {
     // exceptions
-    assert_throw(is_open_, "[select] insert: Select is closed");
-    assert_throw(fd >= 0, "[select] insert: Invalid fd");
-    assert_throw(events, "[select] insert: Events is empty. If you want to remove fd from select, use Select::erase()");
-    assert_throw(!(events & ~0b111), "[select] insert: Events is not supported. Select supports only IOHUB_IN, IOHUB_OUT, IOHUB_PRI");
+    assert_throw_iohubexcept(is_open_, "[select] insert: Select is closed");
+    assert_throw_iohubexcept(fd >= 0, "[select] insert: Invalid fd");
+    assert_throw_iohubexcept(events, "[select] insert: Events is empty. If you want to remove fd from select, use Select::erase()");
+    assert_throw_iohubexcept(!(events & ~0b111), "[select] insert: Events is not supported. Select supports only IOHUB_IN, IOHUB_OUT, IOHUB_PRI");
     if (fd >= fd_hasharr_.size()) fd_hasharr_.resize(fd_hasharr_.size() << 1); // expansion
-    assert_throw(!fd_hasharr_[fd], "[select] insert: The fd already exists. If you want to modify its event, use Select::modify()");
+    assert_throw_iohubexcept(!fd_hasharr_[fd], "[select] insert: The fd already exists. If you want to modify its event, use Select::modify()");
 
     // insert to the hash array
     if (size_++ == 0 || fd > max_) max_ = fd;
@@ -64,9 +64,9 @@ void Select::insert(int fd, int events) {
 
 void Select::erase(int fd) {
     // exceptions
-    assert_throw(is_open_, "[select] erase: Select is closed");
-    assert_throw(fd >= 0, "[select] erase: Invalid fd");
-    assert_throw(fd < fd_hasharr_.size() && fd_hasharr_[fd], "[select] erase: The fd does not exist");
+    assert_throw_iohubexcept(is_open_, "[select] erase: Select is closed");
+    assert_throw_iohubexcept(fd >= 0, "[select] erase: Invalid fd");
+    assert_throw_iohubexcept(fd < fd_hasharr_.size() && fd_hasharr_[fd], "[select] erase: The fd does not exist");
 
     // reset the fd_set
     unsigned char& old_events = fd_hasharr_[fd];
@@ -85,11 +85,11 @@ void Select::erase(int fd) {
 
 void Select::modify(int fd, int events) {
     // exceptions
-    assert_throw(is_open_, "[select] Select is closed");
-    assert_throw(fd >= 0, "[select] Invalid fd");
-    assert_throw(fd < fd_hasharr_.size() && fd_hasharr_[fd], "[select] The fd does not exist");
-    assert_throw(events, "[select] Events is empty. If you want to remove fd from select, use Select::erase()");
-    assert_throw(!(events & ~0b111), "[select] Events is not supported. Select supports only IOHUB_IN, IOHUB_OUT, IOHUB_PRI");
+    assert_throw_iohubexcept(is_open_, "[select] Select is closed");
+    assert_throw_iohubexcept(fd >= 0, "[select] Invalid fd");
+    assert_throw_iohubexcept(fd < fd_hasharr_.size() && fd_hasharr_[fd], "[select] The fd does not exist");
+    assert_throw_iohubexcept(events, "[select] Events is empty. If you want to remove fd from select, use Select::erase()");
+    assert_throw_iohubexcept(!(events & ~0b111), "[select] Events is not supported. Select supports only IOHUB_IN, IOHUB_OUT, IOHUB_PRI");
 
     // update the number of fds
     unsigned char& old_events = fd_hasharr_[fd];
@@ -127,8 +127,8 @@ void Select::clear() noexcept {
 
 fd_event_t Select::wait(int timeout) {
     // exceptions
-    assert_throw(is_open_, "[select] Select is closed");
-    assert_throw(size_ > 0, "[select] Select is empty");
+    assert_throw_iohubexcept(is_open_, "[select] Select is closed");
+    assert_throw_iohubexcept(size_ > 0, "[select] Select is empty");
 
     // push queue
     if (event_queue_.empty()) {
@@ -151,7 +151,7 @@ fd_event_t Select::wait(int timeout) {
         // call select()
         int ret = ::select(max_ + 1, pread, pwrite, pexcept, ptime);
         if (ret == 0) return fd_event_t(-1, 0); // only non-blocking
-        assert_throw(ret > 0, "[select] wait: ", std::strerror(errno));
+        assert_throw_iohubexcept(ret > 0, "[select] wait: ", LAST_ERROR);
 
         // iterate over the result set
         for (size_t fd = 0, cnt = 0; cnt < ret && fd <= max_; ++fd) {

@@ -33,44 +33,44 @@ const size_t EPOLL_WAIT_BUFSIZE = 16;
 }
 
 Epoll::Epoll() : epoll_fd_(epoll_create(1)) {
-    assert_throw(epoll_fd_ >= 0,
-        "[epoll] Epoll create failed, ", std::strerror(errno));
+    assert_throw_iohubexcept(epoll_fd_ >= 0,
+        "[epoll] Epoll create failed, ", LAST_ERROR);
 }
 
 void Epoll::insert(int fd, int events) {
     // exceptions
-    assert_throw(epoll_fd_ != -1, "[epoll] insert: Epoll is closed");
-    assert_throw(fd >= 0, "[epoll] insert: Invalid fd");
-    assert_throw(events, "[epoll] insert: Events is empty. If you want to remove fd from epoll, use Epoll::erase()");
+    assert_throw_iohubexcept(epoll_fd_ != -1, "[epoll] insert: Epoll is closed");
+    assert_throw_iohubexcept(fd >= 0, "[epoll] insert: Invalid fd");
+    assert_throw_iohubexcept(events, "[epoll] insert: Events is empty. If you want to remove fd from epoll, use Epoll::erase()");
 
     epoll_event event{};
     event.data.fd = fd;
     event.events = events;
     int ret = epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, fd, &event);
-    assert_throw(!ret, "[epoll] insert: ", std::strerror(errno));
+    assert_throw_iohubexcept(!ret, "[epoll] insert: ", LAST_ERROR);
 }
 
 void Epoll::erase(int fd) {
     // exceptions
-    assert_throw(epoll_fd_ != -1, "[epoll] erase: Epoll is closed");
-    assert_throw(fd >= 0, "[epoll] erase: Invalid fd");
+    assert_throw_iohubexcept(epoll_fd_ != -1, "[epoll] erase: Epoll is closed");
+    assert_throw_iohubexcept(fd >= 0, "[epoll] erase: Invalid fd");
 
     int ret = epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr);
-    assert_throw(!ret, "[epoll] erase: ", std::strerror(errno));
+    assert_throw_iohubexcept(!ret, "[epoll] erase: ", LAST_ERROR);
 }
 
 void Epoll::modify(int fd, int events) { 
     // exceptions
-    assert_throw(epoll_fd_ != -1, "[epoll] modify: Epoll is closed");
-    assert_throw(fd >= 0, "[epoll] modify: Invalid fd"); 
-    assert_throw(events, "[epoll] modify: Events is empty. If you want to remove fd from epoll, use Epoll::erase()");
+    assert_throw_iohubexcept(epoll_fd_ != -1, "[epoll] modify: Epoll is closed");
+    assert_throw_iohubexcept(fd >= 0, "[epoll] modify: Invalid fd"); 
+    assert_throw_iohubexcept(events, "[epoll] modify: Events is empty. If you want to remove fd from epoll, use Epoll::erase()");
 
     // modify the fd event from epoll
     epoll_event event{};
     event.data.fd = fd;
     event.events = events;
     int ret = epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, &event);
-    assert_throw(!ret, "[epoll] modify: ", std::strerror(errno));
+    assert_throw_iohubexcept(!ret, "[epoll] modify: ", LAST_ERROR);
 }
 
 size_t Epoll::size() const noexcept {
@@ -84,8 +84,8 @@ void Epoll::clear() noexcept {
 
 fd_event_t Epoll::wait(int timeout) {
     // exceptions
-    assert_throw(epoll_fd_ != -1, "[epoll] wait: Epoll is closed");
-    assert_throw(size_, "[epoll] wait: Epoll is empty");
+    assert_throw_iohubexcept(epoll_fd_ != -1, "[epoll] wait: Epoll is closed");
+    assert_throw_iohubexcept(size_, "[epoll] wait: Epoll is empty");
 
     // push queue
     if (event_queue_.empty()) {
@@ -96,7 +96,7 @@ fd_event_t Epoll::wait(int timeout) {
         // epoll_wait
         int ret = epoll_wait(epoll_fd_, event_arr, EPOLL_WAIT_BUFSIZE, timeout);
         if (ret == 0) return fd_event_t(-1, 0); // only non-blocking
-        assert_throw(ret > 0, "[epoll] wait: ", std::strerror(errno));
+        assert_throw_iohubexcept(ret > 0, "[epoll] wait: ", LAST_ERROR);
 
         // push
         for (size_t i = 0; i < ret; ++i) {

@@ -61,41 +61,8 @@ public:
     }
 };
 
-// throw exceptions
-#if __cplusplus >= 201703L
-
-template <class ExceptType = IOHubExcept, class ...Args>
-inline void assert_throw(bool condition, const Args&... args) {
-    if (condition) return;
-    std::string s;
-    ((s += args), ...);
-    throw ExceptType(std::move(s));
-}
-
-#else // 201103L <= __cplusplus < 201703L
-
-inline void append_string_(std::string&) {}
-
-template <class T, class ...Args>
-inline void append_string_(std::string& s, const T& arg, const Args&... args) {
-    s += arg;
-    append_string_(s, args...);
-}
-
-template <class ExceptType = IOHubExcept, class ...Args>
-inline void assert_throw(bool condition, const Args&... args) {
-    if (condition) return;
-    std::string s;
-    append_string_(s, args...);
-    throw ExceptType(std::move(s));
-}
-
-#endif // __cplusplus
-
-
 // type pair {fd: int, event: int}
 using fd_event_t = std::pair<int, int>;
-
 
 // type Event
 enum Event {
@@ -103,7 +70,6 @@ enum Event {
     IOHUB_PRI = 0x02,
     IOHUB_OUT = 0x04,
 };
-
 
 // PollerBase
 class PollerBase {
@@ -119,7 +85,6 @@ public:
     virtual void insert(int fd, int events) = 0;
     virtual void erase(int fd) = 0;
     virtual void modify(int fd, int events) = 0;
-    virtual int get_event(int fd) const noexcept = 0;
     virtual size_t size() const noexcept = 0;
     virtual void clear() noexcept = 0;
 
@@ -147,7 +112,6 @@ public:
     virtual void insert(int fd, int events) override;
     virtual void erase(int fd) override;
     virtual void modify(int fd, int events) override;
-    virtual int get_event(int fd) const noexcept override;
     virtual size_t size() const noexcept override;
     virtual void clear() noexcept override;
 
@@ -174,7 +138,6 @@ public:
     virtual void insert(int fd, int events) override;
     virtual void erase(int fd) override;
     virtual void modify(int fd, int events) override;
-    virtual int get_event(int fd) const noexcept override;
     virtual size_t size() const noexcept override;
     virtual void clear() noexcept override;
 
@@ -200,7 +163,6 @@ public:
     virtual void insert(int fd, int events) override;
     virtual void erase(int fd) override;
     virtual void modify(int fd, int events) override;
-    virtual int get_event(int fd) const noexcept override;
     virtual size_t size() const noexcept override;
     virtual void clear() noexcept override;
 

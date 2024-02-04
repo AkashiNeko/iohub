@@ -53,9 +53,8 @@ public:
 // throw exceptions
 #if __cplusplus >= 201703L
 
-template <class ExceptType = IOHubExcept, class ...Args>
-inline void assert_throw(bool condition, const Args&... args) {
-    if (condition) return;
+template <class ExceptType, class ...Args>
+inline void throw_except_(const Args&... args) {
     std::string s;
     ((s += args), ...);
     throw ExceptType(std::move(s));
@@ -71,15 +70,20 @@ inline void append_string_(std::string& s, const T& arg, const Args&... args) {
     append_string_(s, args...);
 }
 
-template <class ExceptType = IOHubExcept, class ...Args>
-inline void assert_throw(bool condition, const Args&... args) {
-    if (condition) return;
+template <class ExceptType, class ...Args>
+inline void throw_except_(const Args&... args) {
     std::string s;
     append_string_(s, args...);
     throw ExceptType(std::move(s));
 }
 
 #endif // __cplusplus
+
+#define assert_throw_iohubexcept(condition, ...) \
+(static_cast<bool>(condition) ? void(0)          \
+: throw_except_<IOHubExcept>(__VA_ARGS__));      \
+
+#define LAST_ERROR (std::strerror(errno))
 
 } // namespace iohub
 
