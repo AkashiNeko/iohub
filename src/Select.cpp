@@ -28,15 +28,9 @@
 
 namespace iohub {
 
-Select::Select()
-    : fd_hasharr_(32)   // arr size
-    , max_(-1)          // max index in hash array
-    , size_(0)          // number of fd in hash array
-    , readsz_(0)        // number of readable fd
-    , writesz_(0)       // number of writable fd
-    , exceptsz_(0)      // number of exceptable fd
-{
-    // init fd_set
+Select::Select() : fd_hasharr_(32), max_(-1), size_(0),
+        readsz_(0), writesz_(0), exceptsz_(0) {
+    // clear fd_set
     FD_ZERO(&readfds_);
     FD_ZERO(&writefds_);
     FD_ZERO(&exceptfds_);
@@ -45,16 +39,24 @@ Select::Select()
 
 void Select::insert(int fd, int events) {
     // exceptions
-    assert_throw_iohubexcept(is_open_, "[select] insert: Select is closed");
-    assert_throw_iohubexcept(fd >= 0, "[select] insert: Invalid fd");
-    assert_throw_iohubexcept(events, "[select] insert: Events is empty. If you want to remove fd from select, use Select::erase()");
-    assert_throw_iohubexcept(!(events & ~0b111), "[select] insert: Events is not supported. Select supports only IOHUB_IN, IOHUB_OUT, IOHUB_PRI");
-    if (fd >= fd_hasharr_.size()) fd_hasharr_.resize(fd_hasharr_.size() << 1); // expansion
-    assert_throw_iohubexcept(!fd_hasharr_[fd], "[select] insert: The fd already exists. If you want to modify its event, use Select::modify()");
+    assert_throw_iohubexcept(is_open_, "[Select] insert(): Select is closed");
+    assert_throw_iohubexcept(fd >= 0, "[Select] insert(): Invalid fd");
+    assert_throw_iohubexcept(events, "[Select] insert(): Events is empty. "
+        "If you want to remove fd from select, use Select::erase()");
+    assert_throw_iohubexcept(!(events & ~0b111),
+        "[Select] insert(): Events is not supported. "
+        "Select supports only IOHUB_IN, IOHUB_OUT, IOHUB_PRI");
+
+    if (fd >= fd_hasharr_.size())
+        fd_hasharr_.resize(fd + 1);
+
+    assert_throw_iohubexcept(!fd_hasharr_[fd],
+        "[Select] insert(): The fd already exists. "
+        "If you want to modify its event, use Select::modify()");
 
     // insert to the hash array
     if (size_++ == 0 || fd > max_) max_ = fd;
-    fd_hasharr_[fd] = events;
+    fd_hasharr_[fd] = static_cast<unsigned char>(events);
 
     // set the fd_set
     if (events & IOHUB_IN) { FD_SET(fd, &readfds_); ++readsz_; }
@@ -64,9 +66,10 @@ void Select::insert(int fd, int events) {
 
 void Select::erase(int fd) {
     // exceptions
-    assert_throw_iohubexcept(is_open_, "[select] erase: Select is closed");
-    assert_throw_iohubexcept(fd >= 0, "[select] erase: Invalid fd");
-    assert_throw_iohubexcept(fd < fd_hasharr_.size() && fd_hasharr_[fd], "[select] erase: The fd does not exist");
+    assert_throw_iohubexcept(is_open_, "[Select] erase(): Select is closed");
+    assert_throw_iohubexcept(fd >= 0, "[Select] erase(): Invalid fd");
+    assert_throw_iohubexcept(fd < fd_hasharr_.size() && fd_hasharr_[fd],
+        "[Select] erase():The fd does not exist");
 
     // reset the fd_set
     unsigned char& old_events = fd_hasharr_[fd];
@@ -85,26 +88,33 @@ void Select::erase(int fd) {
 
 void Select::modify(int fd, int events) {
     // exceptions
-    assert_throw_iohubexcept(is_open_, "[select] Select is closed");
-    assert_throw_iohubexcept(fd >= 0, "[select] Invalid fd");
-    assert_throw_iohubexcept(fd < fd_hasharr_.size() && fd_hasharr_[fd], "[select] The fd does not exist");
-    assert_throw_iohubexcept(events, "[select] Events is empty. If you want to remove fd from select, use Select::erase()");
-    assert_throw_iohubexcept(!(events & ~0b111), "[select] Events is not supported. Select supports only IOHUB_IN, IOHUB_OUT, IOHUB_PRI");
+    assert_throw_iohubexcept(is_open_, "[Select] modify(): Select is closed");
+    assert_throw_iohubexcept(fd >= 0, "[Select] modify(): Invalid fd");
+    assert_throw_iohubexcept(fd < fd_hasharr_.size() && fd_hasharr_[fd],
+        "[Select] modify(): The fd does not exist");
+    assert_throw_iohubexcept(events, "[Select] modify(): Events is empty. "
+        "If you want to remove fd from select, use Select::erase()");
+    assert_throw_iohubexcept(!(events & ~0b111),
+        "[Select] modify(): Events is not supported. "
+        "Select supports only IOHUB_IN, IOHUB_OUT, IOHUB_PRI");
 
     // update the number of fds
     unsigned char& old_events = fd_hasharr_[fd];
-    int chread = 0, chwrite = 0, chexcept = 0;
-    readsz_ += chread = ((int)!!(events & IOHUB_IN) - !!(old_events & IOHUB_IN));
-    writesz_ += chwrite = ((int)!!(events & IOHUB_OUT) - !!(old_events & IOHUB_OUT));
-    exceptsz_ += chexcept = ((int)!!(events & IOHUB_PRI) - !!(old_events & IOHUB_PRI));
+    int d_read = 0, d_write = 0, d_except = 0;
+    readsz_ += d_read =
+        ((int)!!(events & IOHUB_IN) - !!(old_events & IOHUB_IN));
+    writesz_ += d_write =
+        ((int)!!(events & IOHUB_OUT) - !!(old_events & IOHUB_OUT));
+    exceptsz_ += d_except =
+        ((int)!!(events & IOHUB_PRI) - !!(old_events & IOHUB_PRI));
 
     // update the fd_set
-    if (chread == 1) FD_SET(fd, &readfds_);
-    else if (chread == -1) FD_CLR(fd, &readfds_);
-    if (chwrite == 1) FD_SET(fd, &writefds_);
-    else if (chwrite == -1) FD_CLR(fd, &writefds_);
-    if (chexcept == 1) FD_SET(fd, &exceptfds_);
-    else if (chexcept == -1) FD_CLR(fd, &exceptfds_);
+    if (d_read == 1) FD_SET(fd, &readfds_);
+    else if (d_read == -1) FD_CLR(fd, &readfds_);
+    if (d_write == 1) FD_SET(fd, &writefds_);
+    else if (d_write == -1) FD_CLR(fd, &writefds_);
+    if (d_except == 1) FD_SET(fd, &exceptfds_);
+    else if (d_except == -1) FD_CLR(fd, &exceptfds_);
 
     // update the hash array
     old_events = events;
@@ -121,14 +131,14 @@ void Select::clear() noexcept {
         FD_ZERO(&writefds_);
         FD_ZERO(&exceptfds_);
         size_ = writesz_ = readsz_ = exceptsz_ = 0;
-        event_queue_ = {};
+        event_queue_.clear();
     }
 }
 
 fd_event_t Select::wait(int timeout) {
     // exceptions
-    assert_throw_iohubexcept(is_open_, "[select] Select is closed");
-    assert_throw_iohubexcept(size_ > 0, "[select] Select is empty");
+    assert_throw_iohubexcept(is_open_, "[Select] wait(): Select is closed");
+    assert_throw_iohubexcept(size_ > 0, "[Select] wait(): Select is empty");
 
     // push queue
     if (event_queue_.empty()) {
@@ -151,19 +161,22 @@ fd_event_t Select::wait(int timeout) {
         // call select()
         int ret = ::select(max_ + 1, pread, pwrite, pexcept, ptime);
         if (ret == 0) return fd_event_t(-1, 0); // only non-blocking
-        assert_throw_iohubexcept(ret > 0, "[select] wait: ", LAST_ERROR);
+        assert_throw_iohubexcept(ret > 0, "[Select] wait(): ", LAST_ERROR);
 
         // iterate over the result set
         for (size_t fd = 0, cnt = 0; cnt < ret && fd <= max_; ++fd) {
             if (fd_hasharr_[fd]) {
                 // ready
                 int event = 0;
-                if (pread && FD_ISSET(fd, pread)) event |= IOHUB_IN;
-                if (pwrite && FD_ISSET(fd, pwrite)) event |= IOHUB_OUT;
-                if (pexcept && FD_ISSET(fd, pexcept)) event |= IOHUB_PRI;
+                if (pread && FD_ISSET(fd, pread))
+                    event |= IOHUB_IN;
+                if (pwrite && FD_ISSET(fd, pwrite))
+                    event |= IOHUB_OUT;
+                if (pexcept && FD_ISSET(fd, pexcept))
+                    event |= IOHUB_PRI;
                 // push
                 if (event) {
-                    event_queue_.push(fd_event_t(fd, event));
+                    event_queue_.push(fd, event);
                     ++cnt;
                 }
             }

@@ -45,7 +45,7 @@
 namespace iohub {
 
 class Poll : public PollerBase {
-    std::unordered_map<int, int> fd_map_;
+    std::vector<size_t> fd_map_;
     std::vector<pollfd> pollfd_arr_;
     bool is_open_;
 

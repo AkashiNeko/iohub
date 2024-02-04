@@ -49,7 +49,7 @@ public:
 
     EventQueue();
     bool empty() const;
-    void push(const fd_event_t& fd_event);
+    void push(int fd, int event);
     fd_event_t pop();
     void erase(int fd);
     void clear();

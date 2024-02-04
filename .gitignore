@@ -3,6 +3,7 @@
 build/
 out/
 lib/
+test/
 
 # Prerequisites
 *.d

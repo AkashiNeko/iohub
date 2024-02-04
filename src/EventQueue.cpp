@@ -34,12 +34,11 @@ bool EventQueue::empty() const {
     return front_ == -1;
 }
 
-void EventQueue::push(const fd_event_t& fd_event) {
-    const int& fd = fd_event.first;
+void EventQueue::push(int fd, int event) {
     if (vec_.size() <= fd)
         vec_.resize(fd + 1);
     Node& node = vec_[fd];
-    node.event = fd_event.second;
+    node.event = event;
     if (front_ == -1) {
         front_ = fd;
         node.prev = node.next = fd;
@@ -69,12 +68,18 @@ fd_event_t EventQueue::pop() {
 
 void EventQueue::erase(int fd) {
     if (front_ == -1 || fd >= vec_.size()) return;
+
+    // gets the node to be erased
     Node& cur = vec_[fd];
+
+    // if the fd to be erased exists
     if (cur.event) {
-        cur.event = 0;
-        if (cur.next = fd) {
+        cur.event = 0; // erase
+        if (cur.next == fd) {
             front_ = -1;
         } else {
+            if (fd == front_)
+                front_ = vec_[front_].next;
             vec_[cur.next].prev = cur.prev;
             vec_[cur.prev].next = cur.next;
         }
