@@ -1,2 +1,7 @@
 # iohub
-Linux高并发模型库，使用C++11封装Select、Poll和Epoll
+
+A C++ concurrency model library for Linux, select, poll, and epoll are supported.
+
+## Document
+
+// TODO
