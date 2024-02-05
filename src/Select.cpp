@@ -40,7 +40,11 @@ Select::Select() : fd_hasharr_(32), max_(-1), size_(0),
 void Select::insert(int fd, int events) {
     // exceptions
     assert_throw_iohubexcept(is_open_, "[Select] insert(): Select is closed");
-    assert_throw_iohubexcept(fd >= 0, "[Select] insert(): Invalid fd");
+    assert_throw_iohubexcept(fd >= 0,
+        "[Select] insert(): Invalid file descriptor");
+    assert_throw_iohubexcept(fd < __FD_SETSIZE, "[Select] insert(): "
+        "The fd set cannot be set to this file descriptor \'",
+        std::to_string(fd), '\'');
     assert_throw_iohubexcept(events, "[Select] insert(): Events is empty. "
         "If you want to remove fd from select, use Select::erase()");
     assert_throw_iohubexcept(!(events & ~0b111),

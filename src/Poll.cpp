@@ -40,11 +40,11 @@ void Poll::insert(int fd, int events) {
         "[Poll] insert(): Events is empty. "
         "If you want to remove fd from poll, "
         "use Poll::erase()");
-    assert_throw_iohubexcept(fd < fd_map_.size() && fd_map_[fd] == -1,
+    if (fd >= fd_map_.size()) fd_map_.resize(fd + 1, -1);
+    assert_throw_iohubexcept(fd_map_[fd] == -1,
         "[Poll] insert(): The fd already exists. "
         "If you want to modify its event, "
         "use Poll::modify()");
-    if (fd >= fd_map_.size()) fd_map_.resize(fd + 1, -1);
 
     // insert to fd map
     fd_map_[fd] = pollfd_arr_.size();

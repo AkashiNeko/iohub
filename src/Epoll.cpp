@@ -32,7 +32,7 @@ namespace {
 const size_t EPOLL_WAIT_BUFSIZE = 16;
 }
 
-Epoll::Epoll() : epoll_fd_(epoll_create(1)) {
+Epoll::Epoll() : epoll_fd_(epoll_create(1)), size_(0) {
     assert_throw_iohubexcept(epoll_fd_ >= 0,
         "[Epoll] Epoll create failed, ", LAST_ERROR);
 }
