@@ -71,7 +71,6 @@ void Poll::erase(int fd) {
         pollfd_arr_[index] = std::move(pollfd_arr_.back());
     }
     pollfd_arr_.pop_back();
-    event_queue_.erase(fd);
 }
 
 void Poll::modify(int fd, int events) {
@@ -99,36 +98,36 @@ size_t Poll::size() const noexcept {
 void Poll::clear() noexcept {
     pollfd_arr_.clear();
     fd_map_.clear();
-    event_queue_.clear();
 }
 
-fd_event_t Poll::wait(int timeout) {
+size_t Poll::wait(std::vector<fd_event_t>& fdevt_arr, int timeout) {
     // exceptions
     assert_throw_iohubexcept(is_open_,
         "[Poll] wait(): Poll is closed");
     assert_throw_iohubexcept(!pollfd_arr_.empty(),
         "[Poll] wait(): Poll is empty");
 
-    // push queue
-    if (event_queue_.empty()) {
+    // call poll()
+    int ret = poll(pollfd_arr_.data(), pollfd_arr_.size(), timeout);
 
-        // call poll api
-        int ret = poll(pollfd_arr_.data(), pollfd_arr_.size(), timeout);
-        if (ret == 0) return fd_event_t(-1, 0); // only non-blocking
-        assert_throw_iohubexcept(ret > 0, "[Poll] wait(): ", LAST_ERROR);
+    if (ret == 0) {
+        // non-blocking
+        fdevt_arr.clear();
+        return 0;
+    }
+    assert_throw_iohubexcept(ret > 0, "[Poll] wait(): ", LAST_ERROR);
 
-        // iterate over the result set
-        for (size_t i = 0, cnt = 0; cnt < ret; ++i) {
-            pollfd& fd_event = pollfd_arr_[i];
-            if (fd_event.revents) {
-                event_queue_.push(fd_event.fd, fd_event.revents);
-                fd_event.revents = 0;
-                ++cnt;
-            }
+    // iterate over the result set
+    fdevt_arr.resize(ret);
+    for (size_t i = 0, cnt = 0; cnt < ret; ++i) {
+        pollfd& fd_revent = pollfd_arr_[i];
+        if (fd_revent.revents) {
+            fdevt_arr[cnt++] = {fd_revent.fd, fd_revent.revents};
+            fd_revent.revents = 0;
         }
-    } // queue is empty
+    }
 
-    return event_queue_.pop();
+    return ret;
 }
 
 bool Poll::is_open() const noexcept {

@@ -42,8 +42,10 @@
 namespace iohub {
 
 class Epoll : public PollerBase {
-    size_t size_;
+
     int epoll_fd_;
+    size_t size_;
+    epoll_event* event_arr_;
 
 public:
     Epoll();
@@ -55,7 +57,8 @@ public:
     virtual size_t size() const noexcept override;
     virtual void clear() noexcept override;
 
-    virtual fd_event_t wait(int timeout = -1);
+    virtual size_t wait(std::vector<fd_event_t>& fdevt_arr,
+        int timeout = -1) override;
 
     virtual bool is_open() const noexcept override;
     virtual void close() noexcept override;

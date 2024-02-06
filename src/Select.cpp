@@ -135,59 +135,54 @@ void Select::clear() noexcept {
         FD_ZERO(&writefds_);
         FD_ZERO(&exceptfds_);
         size_ = writesz_ = readsz_ = exceptsz_ = 0;
-        event_queue_.clear();
     }
 }
 
-fd_event_t Select::wait(int timeout) {
+size_t Select::wait(std::vector<fd_event_t>& fdevt_arr, int timeout) {
     // exceptions
     assert_throw_iohubexcept(is_open_, "[Select] wait(): Select is closed");
     assert_throw_iohubexcept(size_ > 0, "[Select] wait(): Select is empty");
 
-    // push queue
-    if (event_queue_.empty()) {
+    // set timeout
+    timeval time{};
+    timeval* ptime = nullptr;
+    if (timeout != -1) {
+        time.tv_sec = timeout / 1000;
+        time.tv_usec = timeout % 1000 * 1000;
+        ptime = &time;
+    }
 
-        // set timeout
-        timeval time{};
-        timeval* ptime = nullptr;
-        if (timeout != -1) {
-            time.tv_sec = timeout / 1000;
-            time.tv_usec = timeout % 1000 * 1000;
-            ptime = &time;
+    // copy fd_set
+    fd_set read, write, except;
+
+    // call select()
+    int ret = ::select(max_ + 1,
+        readsz_ ? &(read = readfds_) : nullptr,
+        writesz_ ? &(write = writefds_) : nullptr,
+        exceptsz_ ? &(except = exceptfds_) : nullptr,
+        ptime);
+
+    if (ret == 0) {
+        // non-blocking
+        fdevt_arr.clear();
+        return 0;
+    }
+    assert_throw_iohubexcept(ret > 0, "[Select] wait(): ", LAST_ERROR);
+
+    // iterate over the result set
+    fdevt_arr.resize(ret);
+    for (size_t fd = 0, cnt = 0; cnt < ret; ++fd) {
+        if (fd_hasharr_[fd]) {
+            // ready
+            int event = 0;
+            if (readsz_ && FD_ISSET(fd, &read)) event |= IOHUB_IN;
+            if (writesz_ && FD_ISSET(fd, &write)) event |= IOHUB_OUT;
+            if (exceptsz_ && FD_ISSET(fd, &except)) event |= IOHUB_PRI;
+            // push
+            if (event) fdevt_arr[cnt++] = {fd, event};
         }
-
-        // fd_set
-        fd_set read, write, except;
-        fd_set* pread = readsz_ ? &(read = readfds_) : nullptr;
-        fd_set* pwrite = writesz_ ? &(write = writefds_) : nullptr;
-        fd_set* pexcept = exceptsz_ ? &(except = exceptfds_) : nullptr;
-
-        // call select()
-        int ret = ::select(max_ + 1, pread, pwrite, pexcept, ptime);
-        if (ret == 0) return fd_event_t(-1, 0); // only non-blocking
-        assert_throw_iohubexcept(ret > 0, "[Select] wait(): ", LAST_ERROR);
-
-        // iterate over the result set
-        for (size_t fd = 0, cnt = 0; cnt < ret && fd <= max_; ++fd) {
-            if (fd_hasharr_[fd]) {
-                // ready
-                int event = 0;
-                if (pread && FD_ISSET(fd, pread))
-                    event |= IOHUB_IN;
-                if (pwrite && FD_ISSET(fd, pwrite))
-                    event |= IOHUB_OUT;
-                if (pexcept && FD_ISSET(fd, pexcept))
-                    event |= IOHUB_PRI;
-                // push
-                if (event) {
-                    event_queue_.push(fd, event);
-                    ++cnt;
-                }
-            }
-        }
-    } // queue is empty
-
-    return event_queue_.pop();
+    }
+    return ret;
 }
 
 bool Select::is_open() const noexcept {

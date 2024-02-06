@@ -30,11 +30,12 @@
 
 // C++
 #include <utility>
-
-// IOHub
-#include "EventQueue.h"
+#include <vector>
 
 namespace iohub {
+
+// pair {fd: int, event: int}
+using fd_event_t = std::pair<int, int>;
 
 enum Event {
     IOHUB_IN  = 0x01,
@@ -43,8 +44,6 @@ enum Event {
 }; // Event
 
 class PollerBase {
-protected:
-    EventQueue event_queue_;
 public:
     // ctor & dtor
     PollerBase() = default;
@@ -60,7 +59,8 @@ public:
     virtual size_t size() const noexcept = 0;
     virtual void clear() noexcept = 0;
 
-    virtual fd_event_t wait(int timeout = -1) = 0;
+    virtual size_t wait(std::vector<fd_event_t>& fdevt_arr,
+        int timeout = -1) = 0;
 
     virtual bool is_open() const noexcept = 0;
     virtual void close() noexcept = 0;

@@ -29,10 +29,11 @@
 namespace iohub {
 
 namespace {
-const size_t EPOLL_WAIT_BUFSIZE = 16;
+const size_t EPOLL_WAIT_BUFSIZE = 4096;
 }
 
-Epoll::Epoll() : epoll_fd_(epoll_create(1)), size_(0) {
+Epoll::Epoll() : epoll_fd_(epoll_create(1)), size_(0),
+        event_arr_(new epoll_event[EPOLL_WAIT_BUFSIZE]) {
     assert_throw_iohubexcept(epoll_fd_ >= 0,
         "[Epoll] Epoll create failed, ", LAST_ERROR);
 }
@@ -53,12 +54,9 @@ void Epoll::insert(int fd, int events) {
     event.events = events;
     int ret = epoll_ctl(epoll_fd_,
         EPOLL_CTL_ADD, fd, &event);
-    if (ret == 0) {
-        ++size_;
-    } else {
-        assert_throw_iohubexcept(false,
-            "[Epoll] insert(): ", LAST_ERROR);
-    }
+    assert_throw_iohubexcept(ret == 0,
+        "[Epoll] insert(): ", LAST_ERROR);
+    ++size_;
 }
 
 void Epoll::erase(int fd) {
@@ -70,13 +68,9 @@ void Epoll::erase(int fd) {
 
     int ret = epoll_ctl(epoll_fd_,
         EPOLL_CTL_DEL, fd, nullptr);
-    if (ret == 0) {
-        --size_;
-        event_queue_.erase(fd);
-    } else {
-        assert_throw_iohubexcept(false,
-            "[Epoll] erase(): ", LAST_ERROR);
-    }
+    assert_throw_iohubexcept(ret == 0,
+        "[Epoll] erase(): ", LAST_ERROR);
+    --size_;
 }
 
 void Epoll::modify(int fd, int events) { 
@@ -106,38 +100,34 @@ size_t Epoll::size() const noexcept {
 }
 
 void Epoll::clear() noexcept {
-    event_queue_.clear();
+    ::close(epoll_fd_);
+    epoll_fd_ = epoll_create(1);
 }
 
-fd_event_t Epoll::wait(int timeout) {
+size_t Epoll::wait(std::vector<fd_event_t>& fdevt_arr, int timeout) {
     // exceptions
     assert_throw_iohubexcept(epoll_fd_ != -1,
         "[Epoll] wait(): Epoll is closed");
     assert_throw_iohubexcept(size_,
         "[Epoll] wait(): Epoll is empty");
 
-    // push queue
-    if (event_queue_.empty()) {
-
-        // results
-        epoll_event event_arr[EPOLL_WAIT_BUFSIZE]{};
-
-        // epoll_wait
-        int ret = epoll_wait(epoll_fd_,
-            event_arr, EPOLL_WAIT_BUFSIZE, timeout);
-        if (ret == 0) // only epoll is non-blocking
-            return fd_event_t(-1, 0);
+    fdevt_arr.clear();
+    int ret = 0, result = 0;
+    do {
+        ret = epoll_wait(epoll_fd_, event_arr_, EPOLL_WAIT_BUFSIZE, timeout);
+        if (ret == 0) return result;
+        timeout = 0;
         assert_throw_iohubexcept(ret > 0,
             "[Epoll] wait(): ", LAST_ERROR);
-
         // push
-        for (size_t i = 0; i < ret; ++i) {
-            event_queue_.push(event_arr[i].data.fd,
-                static_cast<int>(event_arr[i].events));
+        fdevt_arr.resize(result + ret);
+        for (size_t cnt = result; cnt < ret; ++cnt) {
+            fdevt_arr[cnt++] = {static_cast<int>(event_arr_[cnt].data.fd),
+                static_cast<int>(event_arr_[cnt].events)};
         }
-    } // queue is empty
-
-    return event_queue_.pop();
+        result += ret;
+    } while (ret == EPOLL_WAIT_BUFSIZE);
+    return result;
 }
 
 bool Epoll::is_open() const noexcept {
